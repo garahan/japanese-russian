@@ -1,7 +1,7 @@
 {
-  "name": "Mahym's Japanese — 道",
-  "short_name": "Mahym 道",
-  "description": "A personal Japanese acquisition system: N4 → MEXT → N3 → N2 → N1.",
+  "name": "日本語 — 道",
+  "short_name": "日本語 道",
+  "description": "A personal Japanese acquisition system: N5 → N4 → N3 → N2 → N1.",
   "start_url": "/index.html",
   "scope": "/",
   "display": "standalone",

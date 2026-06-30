@@ -8,13 +8,13 @@
                          Big S = durable memory. This is the thing we grow.
      D  Difficulty     — 1..10, how hard THIS item is for THIS learner.
                          High D items grow stability more slowly.
-     R  Retrievability — probability she can recall it RIGHT NOW (0..1).
+     R  Retrievability — probability the learner can recall it RIGHT NOW (0..1).
                          Derived from S and time-since-review. This decays.
 
    We schedule the next review for the moment R is predicted to hit a target
    (default 90%). Reviewing right at that edge is the spacing-effect sweet spot:
    late enough that the retrieval is effortful (which strengthens memory — a
-   "desirable difficulty", Bjork) but early enough that she doesn't actually
+   "desirable difficulty", Bjork) but early enough that they don't actually
    forget. See theory-and-integration.md for the research behind each piece.
 
    The constants are transparent, reasonable defaults — clearly labelled and

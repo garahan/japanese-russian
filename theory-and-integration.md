@@ -4,7 +4,7 @@ Two engines, two jobs:
 
 - **`memory-engine.js`** decides *when each item should be reviewed* and *how
   strong each memory is*. This is learning science.
-- **`coach.js`** decides *how much to ask of her today* and *what to say*. This
+- **`coach.js`** decides *how much to ask of the learner today* and *what to say*. This
   is behaviour-design science.
 
 Everything below explains the model and the research it rests on, and is honest
@@ -20,8 +20,8 @@ Anki now ships) use:
 | Symbol | Name | Meaning |
 |---|---|---|
 | **S** | Stability | days until recall probability falls to 90%. The thing we grow. |
-| **D** | Difficulty | 1–10, how hard this item is for *her*. High D → slower growth. |
-| **R** | Retrievability | probability she can recall it *right now* (0–1). Decays with time. |
+| **D** | Difficulty | 1–10, how hard this item is for *the learner*. High D → slower growth. |
+| **R** | Retrievability | probability the learner can recall it *right now* (0–1). Decays with time. |
 
 ### The forgetting curve
 
@@ -85,12 +85,12 @@ you once knew is faster than first learning, so the schedule reflects that.
 > **Honest note:** real FSRS fits ~19 weights to *your own* review history with
 > thousands of data points. This is a transparent, hand-set approximation of the
 > same shape. It is principled and behaves correctly (see the demo), but once
-> she has a few thousand reviews logged, those weights could be *fit to her*
+> the learner has a few thousand reviews logged, those weights could be *fit to them*
 > instead of assumed — a great Phase 4 upgrade.
 
 ### Stages
 
-Stability maps to a stage she can see and feel progress through:
+Stability maps to a stage the learner can see and feel progress through:
 
 | Stage | Stability | Meaning |
 |---|---|---|
@@ -105,8 +105,8 @@ Stability maps to a stage she can see and feel progress through:
 
 For prioritising, each due item gets an urgency score from how far recall has
 dropped below target, weighted up for more-learned items (losing a mature memory
-costs more than losing a fragile one). The coach feeds her the **highest-urgency
-items first** — so whatever time she gives is spent on the memories closest to
+costs more than losing a fragile one). The coach feeds the learner the **highest-urgency
+items first** — so whatever time is given is spent on the memories closest to
 being lost.
 
 ---
@@ -126,9 +126,9 @@ and can't be relied on, so the coach works the two levers we *can* move:
 
 **1. Ability — make the ask small.**
 On low-consistency days the coach prescribes the **minimum viable session**: the
-60-second, 3-item rescue. A tiny action she actually does beats a perfect plan
-she avoids (BJ Fogg's *Tiny Habits*; the "two-minute rule"). The daily dose
-scales with her **adherence** (active days in the last 14):
+60-second, 3-item rescue. A tiny action the learner actually does beats a perfect plan
+they avoid (BJ Fogg's *Tiny Habits*; the "two-minute rule"). The daily dose
+scales with their **adherence** (active days in the last 14):
 
 | Adherence | Daily ceiling |
 |---|---|
@@ -224,7 +224,7 @@ near-zero-friction entry point.
 recommended dose, headline). Once per session, POST it to a tiny `/api/state`
 endpoint that stores it in Upstash; then `/api/remind` reads it and sends a
 *specific* nudge ("8 words are slipping — 3 minutes saves them") instead of the
-current generic one. That closes the loop between what she's actually doing and
+current generic one. That closes the loop between what the learner is actually doing and
 what the daily prompt says.
 
 ---

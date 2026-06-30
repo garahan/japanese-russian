@@ -474,7 +474,7 @@ const TYPE_META={
   'flashcards':{icon:'🃏',label:'Flashcards',color:'var(--purple)'},
   'lesson-quiz':{icon:'📝',label:'Lesson Quiz',color:'var(--green)'},
   'lesson-write':{icon:'✍️',label:'Writing Drill',color:'var(--ink2)'},
-  'exam':{icon:'📋',label:'MEXT Exam',color:'var(--accent)'},
+  'exam':{icon:'📋',label:'Пробный тест',color:'var(--accent)'},
   'jlpt':{icon:'🎯',label:'JLPT Test',color:'var(--blue)'},
   'study':{icon:'📚',label:'Study',color:'var(--ink2)'},
   'drill':{icon:'🏋️',label:'Drill Practice',color:'var(--green)'},
@@ -558,14 +558,14 @@ function renderDashboard(logs,summary){
     let detail='';
     if(l.pct!=null)detail=`<div class="feed-score ${l.pct>=70?'good':'bad'}">${l.pct}% correct</div>`;
     else if(l.correct!=null&&l.total!=null)detail=`<div class="feed-score ${l.correct/l.total>=0.7?'good':'bad'}">${l.correct}/${l.total}</div>`;
-    if(l.examLevel)detail+=`<div class="feed-meta">MEXT Level ${l.examLevel} · ${l.examPct}% ${l.examPassed?'✅':'❌'}</div>`;
+    if(l.examLevel)detail+=`<div class="feed-meta">Уровень ${l.examLevel} · ${l.examPct}% ${l.examPassed?'✅':'❌'}</div>`;
     if(l.jlptLevel)detail+=`<div class="feed-meta">JLPT ${l.jlptLevel} · ${l.jlptScore}/180 ${l.jlptPassed?'✅':'❌'}</div>`;
     if(l.lesson)detail+=`<div class="feed-meta">Lesson ${l.lesson}</div>`;
     if(l.overall!=null)detail+=`<div class="feed-meta">Mastery ${l.overall}% · 🔥 ${l.momentum||0}</div>`;
     return `<div class="feed-item"><div class="feed-icon">${m.icon}</div>
       <div class="feed-body"><div class="feed-title">${m.label}</div>
       <div class="feed-meta">${timeAgo(l.timestamp)}</div>${detail}</div></div>`;
-  }).join(''):'<p class="muted">No activity logged yet. Activity will appear here as Mahym studies.</p>';
+  }).join(''):'<p class="muted">No activity logged yet. Activity will appear here as you study.</p>';
   document.getElementById('rep-feed').innerHTML=feedHTML;
 }
 
@@ -1015,7 +1015,7 @@ function exportCSV(){
   const blob=new Blob([csv],{type:'text/csv'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='mahym-progress-'+C.dateKey()+'.csv';
+  a.download='progress-'+C.dateKey()+'.csv';
   a.click();
   URL.revokeObjectURL(a.href);
   toast('CSV exported!');
@@ -1032,7 +1032,7 @@ function exportProgress(){
   const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.href=url;a.download=`mahym-backup-${data.exportedAt}.json`;
+  a.href=url;a.download=`backup-${data.exportedAt}.json`;
   document.body.appendChild(a);a.click();a.remove();
   URL.revokeObjectURL(url);
   document.getElementById('backup-msg').innerHTML=`<span style="color:var(--green);font-weight:700">✅ Exported ${Object.keys(data.data).length} keys</span>`;

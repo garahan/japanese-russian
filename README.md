@@ -1,158 +1,104 @@
-# Mahym's Japanese — 道
+# 日本語 — 道
 
-A personal Japanese **acquisition system** (not a quiz app). It tracks *mastery*,
-*retention*, and *momentum* across five skills — Reading, Listening, Vocabulary,
-Grammar, Kanji — and walks one path: **N4 → MEXT → N3 → N2 → N1**.
+A spaced-repetition Japanese learning PWA. Tracks mastery, retention, and momentum across five skills — vocabulary, grammar, kanji, reading, listening — on one path: **N5 → N4 → N3 → N2 → N1**.
 
-Built as a no-build, vanilla HTML/CSS/JS PWA. Deploys to Vercel as static files
-plus a handful of serverless functions in `/api`. Content lives in Upstash Redis.
-Study reports are pushed to your Telegram.
+No build step. Vanilla HTML/CSS/JS. Deploys to Vercel as static files + serverless functions. Works offline.
 
 ---
 
-## Works immediately (no setup)
+## Vision
 
-Open `index.html` from any static host (or `npx serve` locally) and it runs
-**offline** using the bundled sample content in `seed-data.js` — two N4 Lesson
-Packs (Travel 旅行, Daily Life 毎日の生活). All progress is saved on-device in
-`localStorage`. This is enough for your wife to start today.
+Most apps quiz you. This one **teaches you to remember**. The core loop:
 
-The backend (Upstash + Telegram) only adds: editing content from the admin page,
-and getting study reports on your phone.
+1. **Mission** — one tap builds a personalized session: due reviews, a little new content, a short reading, a recall check. Leans on your weakest skill automatically.
+2. **Mastery** grows only from real reps — never from opening the app.
+3. **Momentum** decays gently (×0.85/day) so a missed day isn't a reset.
+4. **Reports** go to your Telegram after each session — study logs, scores, streaks.
+
+The roadmap page projects, from your recent growth rate, how many days until you're ready for each JLPT level.
 
 ---
 
-## Files
+## Structure
 
 ```
-index.html        Home — hero, coach whisper, continue card, practice, badges
-roadmap.html      Journey — rank ladder, projections, heatmap, modules
-admin.html        Content Studio — create/edit Lesson Packs, bulk import, backup, insights dashboard
-test.html         Weakness Test — timed test page for shareable links targeting weak points
-core.js           The engine: SRS, mastery math, momentum, mission builder
-seed-data.js      Bundled sample content (also used by /api/seed)
-feed-threads.js   Twitter-style learning threads (dopamine-rich cultural posts)
-jlpt-question-bank.js  JLPT question bank (N5–N1, 6 sections each)
-manifest.json     PWA manifest (with quick-action shortcuts)
-sw.js             Service worker (offline, stale-while-revalidate, notifications)
-icon-*.png        App icons (道)
-Coach.js          Coach whisper engine — motivational messaging
-memory-engine.js  Memory & retention tracking module
-grammar-reference.html  Searchable grammar cheat-sheet (all lessons)
-engine-demo.js    Demo/test harness for the engine
+index.html              Home — greeting, streak, mission, coach, badges, journey map
+roadmap.html            Journey — rank ladder (N5→N1), projections, heatmap, skills, milestones
+admin.html              Content studio — create/edit lesson packs, bulk import, insights dashboard
+test.html               Weakness test — timed, shareable URL, targets weak points
+grammar-reference.html  Searchable grammar cheat-sheet
+
+core.js                 Engine: SRS, mastery math, momentum, mission builder, lesson system
+memory-engine.js        Memory & retention tracking
+Coach.js                Coach whisper — motivational messaging
+seed-data.js            Bundled lesson content (N4, lessons 25–50)
+n5-content.js           N5 beginner content (lessons 1–8)
+n3-content.js           N3 intermediate content
+jlpt-question-bank.js   JLPT question bank (N5–N1)
+manga-data.js           Graded reading content
+feed-threads.js         Cultural learning threads
+
+sw.js                   Service worker (offline cache, notifications)
+manifest.json           PWA manifest
+
 api/
-  content.js      Lesson Pack storage (GET read / POST write)
-  admin-auth.js   Admin password check
-  results.js      Telegram study reporter + activity log storage
-  logs.js         Fetch activity logs for admin dashboard
-  seed.js         One-time content seeder (merge, safe to re-run)
-  debug.js        Health check (env presence + lesson count)
-  remind.js       Scheduled reminder notifications (cron)
-  generate.js     AI content generation (Anthropic) for lesson packs
-  thread.js       AI thread generation (Gemini/Anthropic) for feed
+  content.js            Lesson pack CRUD (Redis-backed)
+  admin-auth.js         Admin password check
+  results.js            Telegram study reporter + activity log storage
+  logs.js               Fetch activity logs for admin dashboard
+  seed.js               One-time content seeder (merge, idempotent)
+  remind.js             Scheduled Telegram reminders (cron)
+  generate.js           AI lesson pack generation (Anthropic)
+  thread.js             AI cultural thread generation (Gemini/Anthropic)
+  debug.js              Health check endpoint
 ```
 
 ---
 
-## Deploy to Vercel (full version)
+## Quick start
 
-### 1. Create an Upstash Redis database
-At [upstash.com](https://upstash.com), create a Redis database and copy its
-**REST URL** and **REST token**.
+Open `index.html` in any browser. The app runs offline with bundled content. All progress saves to `localStorage`.
 
-### 2. Create a Telegram bot (for reports)
-Message [@BotFather](https://t.me/BotFather) → `/newbot` → copy the **token**.
-Then message your new bot once, and get your **chat id** (e.g. open
-`https://api.telegram.org/bot<TOKEN>/getUpdates` and read `chat.id`).
+For the full version (content editing, Telegram reports, shared content across devices):
 
-### 3. Push this folder to Vercel
-Import the folder as a new Vercel project. No build command — it's static + `/api`.
+### 1. Deploy to Vercel
+Import this folder as a new project. No build command needed.
 
-### 4. Set environment variables (Vercel → Settings → Environment Variables)
+### 2. Set environment variables
 
-| Variable | What it's for | Required |
+| Variable | Purpose | Required |
 |---|---|---|
-| `ADMIN_PASSWORD` | Login for the admin page + gate on content writes | Yes (to edit content) |
-| `KV_REST_API_URL` | Upstash REST URL | Yes (for shared content) |
-| `KV_REST_API_TOKEN` | Upstash REST token | Yes (for shared content) |
-| `TELEGRAM_TOKEN` | Bot token | Optional (reports) |
-| `TELEGRAM_CHAT_ID` | Your chat id | Optional (reports) |
-| `RESULTS_SECRET` | Shared secret protecting the report endpoint | Optional but recommended |
-| `SEED_SECRET` | Guards `/api/seed` (defaults to `seed_nihongo_2024`) | Optional |
+| `ADMIN_PASSWORD` | Admin page login | For content editing |
+| `KV_REST_API_URL` | Upstash Redis REST URL | For shared content |
+| `KV_REST_API_TOKEN` | Upstash Redis REST token | For shared content |
+| `TELEGRAM_TOKEN` | Bot token from @BotFather | For reports |
+| `TELEGRAM_CHAT_ID` | Your Telegram chat ID | For reports |
+| `RESULTS_SECRET` | Shared secret for report endpoint | Recommended |
+| `SEED_SECRET` | Guards `/api/seed` | Optional |
 
-### 5. Seed the content (once)
-Visit:
+### 3. Seed content (once)
 ```
-https://YOUR-APP.vercel.app/api/seed?secret=seed_nihongo_2024
+https://YOUR-APP.vercel.app/api/seed?secret=YOUR_SEED_SECRET
 ```
-(or your `SEED_SECRET`). This **merges** the sample packs into Upstash — it never
-overwrites packs you've made, so it's safe to run again.
+Merges bundled packs into Redis. Safe to re-run — never overwrites existing packs.
 
-### 6. Lock down reports (recommended)
-If you set `RESULTS_SECRET`, also open `index.html` and set the matching value:
-```js
-const RESULTS_SECRET = 'CHANGE_ME_to_match_env';
-```
-> Note: this constant is visible in client source, so it only deters casual
-> abuse. That's fine here — the endpoint can only message *your* Telegram, so a
-> leak means at worst some spam, which you stop by rotating the secret. If you
-> leave `RESULTS_SECRET` unset, reports still work, just unauthenticated.
+### 4. Verify
+Visit `/api/debug` to check env vars and lesson pack count.
 
-### 7. Confirm everything
-Visit `https://YOUR-APP.vercel.app/api/debug` — you'll see which env vars are
-present and how many Lesson Packs are stored.
-
-### 8. Install the app
-Open the site on the phone → browser menu → **Add to Home Screen**.
+### 5. Install on phone
+Open the site → browser menu → **Add to Home Screen**.
 
 ---
-
-## Features
-
-- **Dopamine-first home page** — Time-based greeting, animated streak flame, count-up stats, breathing continue card, coach whisper (rotating motivational messages), skeleton loading, staggered card entrances, shine sweeps, achievement toasts, XP float numbers
-- **Growth tree badge system** — Visual tree (🌰→🌱→🌿→🌲→🌳) that grows/wilts based on retention + momentum. 32 badges with tooltips, leaf rewards, animated sway
-- **Weak points dashboard** — Color-coded weak items with dimension tags (vocab/grammar/kanji), consecutive-wrong tracking, one-tap strengthen mode
-- **Journey map** — Compact 10-per-row grid (Lessons 25→50) with difficulty dots, progress bar, and legend
-- **Admin insights dashboard** — Mini stats (8 metrics), insight cards (growth, retention, momentum, weak spots, daily goals, streak power, micro-movement detection), 14-day activity heatmap, weak points detail, badge progress, Generate Test button
-- **Weakness test generation** — 30-question MCQ test targeting weak points, encoded as shareable URL with timer, question navigation, and results review
-- **JLPT Placement Test** — N5→N1 levels with real JLPT scoring (3 sections, 180 points, sectional + total pass marks), placement detection, study recommendations
-- **MEXT Exam Practice** — Government scholarship exam simulation, 3 difficulty levels (初級/中級/上級), timed, 5 sections
-- **Learning threads** — Twitter-style cultural posts (kanji secrets, grammar mysteries) with AI-generated fresh content via Gemini/Anthropic
-- **Notifications** — Streak reminders, review-due alerts, daily-goal nudges (iOS 16.4+ with home-screen install)
-- **PWA shortcuts** — Long-press app icon for quick actions: Continue Lesson, Flashcards, JLPT Test, My Journey
-- **Dark mode** — Synced across all pages (home, roadmap, grammar reference, admin, test)
-- **Offline-first** — Service worker caches all assets + Google Fonts for full offline use
-
-## Daily use
-
-- **Mission** — one tap. Builds itself: reviews what's due, teaches a little new
-  vocab/grammar, reads a short story (with tap-to-listen TTS), then a quick recall
-  check. It automatically leans on your **weakest skill**.
-- **Mastery** never goes up from just opening the app — only from real reps.
-- **Momentum** decays gently if you skip days (×0.85/day) instead of resetting to
-  zero, so a missed day isn't a punishment.
-- **Reading** and **Flashcards** are there for extra self-directed practice.
-- **Journey** (roadmap) shows where you are on the ladder and projects, from your
-  recent growth rate, roughly how many days to MEXT / N3 / N2 / N1.
 
 ## Adding content
 
-Open `/admin.html`, log in with `ADMIN_PASSWORD`. Create a **Lesson Pack** (JSON)
-or paste many at once in **Bulk Import**. The editor validates each pack against
-the "Golden Rule" before saving (e.g. grammar needs an explanation + examples;
-vocab needs an example sentence). New packs flow into everyone's app on next load.
+Open `/admin.html` → log in → create a **Lesson Pack** (JSON) or use **Bulk Import**. Packs validate against structural rules (grammar needs explanation + examples, vocab needs example sentences). New packs appear on next app load.
 
 ---
 
-## Listening / audio
-
-Listening uses the browser's built-in Japanese **text-to-speech** (free, no audio
-files). Quality depends on the device's installed `ja-JP` voice — iOS and modern
-Android both ship good ones. No recordings to host for V1.
-
 ## Notes
 
-- All learner progress is **on-device** (`localStorage`). Telegram reports are how
-  you (the coach) see progress from another device; there's no cross-device sync of
-  the learner's stats in V1 by design.
-- Pinch-zoom is left enabled — useful for inspecting kanji.
+- Learner progress is **on-device** (`localStorage`). Telegram reports are the cross-device visibility layer.
+- Listening uses browser TTS (`ja-JP` voice) — no audio files to host.
+- Pinch-zoom enabled for kanji inspection.
+- Dark mode syncs across all pages.

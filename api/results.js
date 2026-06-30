@@ -63,7 +63,7 @@ function buildMessage(b) {
     if (b.title) lines.push(`“${esc(b.title)}”`);
     if (score) lines.push(`✅ Comprehension: ${score}`);
   } else if (b.type === 'exam') {
-    head = `📝 <b>${name} took a MEXT exam</b>`;
+    head = `📝 <b>${name} сдала пробный тест</b>`;
     if (b.examLevel) lines.push(`Level: ${esc(b.examLevel)}`);
     if (b.examPct != null) lines.push(`Score: ${b.examPct}% ${b.examPassed ? '✅ Passed' : '❌ Not yet'}`);
   } else if (b.type === 'jlpt') {
@@ -133,7 +133,7 @@ module.exports = async (req, res) => {
   // Store activity log in Redis (non-fatal if Redis isn't configured)
   const logEntry = {
     type: body.type || 'study',
-    name: body.name || 'Mahym',
+    name: body.name || 'Ученик',
     timestamp: new Date().toISOString(),
     overall: body.overall ?? null,
     momentum: body.momentum ?? null,

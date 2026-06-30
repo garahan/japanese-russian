@@ -9,15 +9,15 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#1c1c2e">
-<meta name="description" content="Японский Махым — персональная система изучения японского. SRS, тест JLPT, пробные тесты и ежедневное наставничество. N4 → N1.">
-<meta property="og:title" content="Mahym's Japanese — 道">
+<meta name="description" content="Персональная система изучения японского. SRS, тест JLPT, пробные тесты и ежедневное наставничество. N5 → N1.">
+<meta property="og:title" content="日本語 — 道">
 <meta property="og:description" content="Персональная система изучения японского: SRS, тест JLPT, пробные тесты и ежедневное наставничество.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="/icon-512.png">
 <link rel="prefetch" href="/roadmap.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<title>🌸 Mahym's Japanese</title>
+<title>🌸 日本語 — 道</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -510,6 +510,7 @@ body.dark .coach-whisper{background:linear-gradient(135deg,var(--card),rgba(67,9
 .phase-step.locked .phase-step-dot{opacity:.45;border-style:dashed}
 .phase-step-label{font-size:11px;font-weight:900;text-align:center;line-height:1.3}
 .phase-step-date{font-size:9px;font-weight:700;color:var(--ink3);text-align:center}
+.phase-step-sub{font-size:9px;font-weight:700;color:var(--ink3);text-align:center}
 .phase-step.active .phase-step-label{color:var(--blue)}
 .phase-step.done .phase-step-label{color:var(--green)}
 .phase-step-pct{font-size:10px;font-weight:800;color:var(--ink3);margin-top:2px}
@@ -1206,7 +1207,7 @@ function requestNotifPermission(){
     updateNotifUI();
     if(result==='granted'){
       // Send a welcome notification
-      try{ new Notification('🌸 Японский Махым', {body:'Уведомления включены! Будем напоминать держать стрик.', icon:'/icon-192.png'}); }catch(e){}
+      try{ new Notification('🌸 日本語 — 道', {body:'Уведомления включены! Будем напоминать держать стрик.', icon:'/icon-192.png'}); }catch(e){}
       startNotifScheduler();
     }
   });
@@ -1329,7 +1330,7 @@ function fireNotification(title,body){
   try{
     if(navigator.serviceWorker && navigator.serviceWorker.controller){
       navigator.serviceWorker.ready.then(reg=>{
-        reg.showNotification(title,{body,icon:'/icon-192.png',badge:'/icon-192.png',tag:'mahym-jp',data:{url:'/'}});
+        reg.showNotification(title,{body,icon:'/icon-192.png',badge:'/icon-192.png',tag:'jp-do',data:{url:'/'}});
       }).catch(()=>{ try{new Notification(title,{body,icon:'/icon-192.png'});}catch(e){} });
     } else {
       new Notification(title,{body,icon:'/icon-192.png'});
@@ -1396,7 +1397,7 @@ function checkStreakBurst(streakCount){
 
 /* ── Telegram report (fire-and-forget with offline queue) ── */
 function report(type,payload){
-  const body=JSON.stringify({type,secret:RESULTS_SECRET,name:'Mahym',momentum:C.getMomentum().value,...payload});
+  const body=JSON.stringify({type,secret:RESULTS_SECRET,momentum:C.getMomentum().value,...payload});
   try{
     fetch('/api/results',{method:'POST',headers:{'Content-Type':'application/json'},body}).catch(()=>{
       // Queue for retry when back online
@@ -1676,10 +1677,10 @@ const App = (function(){
     const srs=C.getSRS();
     const packs=C.PACKS();
 
-    // N4 mastery: based on lesson packs L25-50
+    // N4 mastery: based on lesson packs with level N4 or no level (legacy)
     const n4Packs=packs.filter(p=>p.level==='N4'||!p.level);
     const n4Items=[...allItems.vocab,...allItems.grammar,...allItems.kanji].filter(it=>{
-      const p=C.lessonOf(it.id); return p && p>=25 && p<=50;
+      const p=C.lessonOf(it.id); return p && (p.level==='N4'||!p.level);
     });
     const n4Learned=n4Items.filter(it=>srs[it.id]&&srs[it.id].reps>0).length;
     const n4Mastered=n4Items.filter(it=>C.itemMastery(it.id)>=80).length;
@@ -1697,18 +1698,24 @@ const App = (function(){
     const n2Learned=n2BankItems.filter(q=>srs[q.id]&&srs[q.id].reps>0).length;
     const n2Pct=n2BankItems.length?Math.round(n2Learned/n2BankItems.length*10):0; // rough estimate
 
-    // MEXT: based on exam pass status
-    const mextA=C.DB.get('exam_pass_A');
-    const mextB=C.DB.get('exam_pass_B');
-    const mextC=C.DB.get('exam_pass_C');
-    const mextDone=[mextA,mextB,mextC].filter(Boolean).length;
-    const mextPct=Math.round(mextDone/3*100);
+    // N5 mastery: based on lesson packs with level N5
+    const n5Packs=packs.filter(p=>p.level==='N5');
+    const n5Items=[...allItems.vocab,...allItems.grammar,...allItems.kanji].filter(it=>it.level==='N5');
+    const n5Learned=n5Items.filter(it=>srs[it.id]&&srs[it.id].reps>0).length;
+    const n5Mastered=n5Items.filter(it=>C.itemMastery(it.id)>=80).length;
+    const n5Pct=n5Items.length?Math.round(n5Mastered/n5Items.length*100):0;
 
-    // Determine current phase
-    let activePhase='n4';
-    if(n4Pct>=80 && n3Items.length>0) activePhase='n3';
-    if(n4Pct>=80 && n3Pct>=80 && n2BankItems.length>0) activePhase='n2';
-    if(n4Pct>=80 && n3Pct>=80 && n2Pct>=50) activePhase='mext';
+    // N1 mastery: based on JLPT bank N1
+    const n1BankItems=(window.JLPT_BANK||[]).filter(q=>q.level==='N1');
+    const n1Learned=n1BankItems.filter(q=>srs[q.id]&&srs[q.id].reps>0).length;
+    const n1Pct=n1BankItems.length?Math.round(n1Learned/n1BankItems.length*10):0;
+
+    // Determine current phase dynamically
+    let activePhase='n5';
+    if(n5Pct>=80 && n4Items.length>0) activePhase='n4';
+    if(n5Pct>=80 && n4Pct>=80 && n3Items.length>0) activePhase='n3';
+    if(n5Pct>=80 && n4Pct>=80 && n3Pct>=80 && n2BankItems.length>0) activePhase='n2';
+    if(n5Pct>=80 && n4Pct>=80 && n3Pct>=80 && n2Pct>=50 && n1BankItems.length>0) activePhase='n1';
 
     // Exam date
     const examDate=C.DB.get('exam_date');
@@ -1719,34 +1726,46 @@ const App = (function(){
       daysLeft=Math.max(0,Math.ceil((ed-today)/86400000));
     }
 
-    // Phase definitions — calculated from Jun 30, 2026
-    // Real exam dates: JLPT N3 = Dec 6 2026, MEXT = Jun 15 2027, JLPT N2 = Jul 4 2027
-    // Study pace: 2 hrs/day, 15-20 new items/day + reviews
-    const phases=[
-      {key:'n4',icon:'📘',label:'N4',sub:'Minna L25-50',pct:n4Pct,date:'Июл → Сен 2026',done:n4Pct>=80,active:activePhase==='n4',
-       detail:n4Pct>=80?'<b>N4 освоен!</b> 🎉 Готова начинать N3. Фокус на грамматике N3 и новой лексике.'
-             :`<b>Этап 1 · 92 дня.</b> ${n4Learned}/${n4Items.length} элементов изучено · ${n4Mastered} освоено. Цель: 15 новых элементов/день + 30 повторений (~60 мин/день). Цель: 80% освоения к 30 сен.`},
-      {key:'n3',icon:'📗',label:'N3',sub:'Переходный уровень',pct:n3Pct,date:'Окт → Дек 2026',done:n3Pct>=80&&n3Items.length>0,active:activePhase==='n3',
-       detail:n3Items.length===0?'<b>Закрыто.</b> Сначала заверши N4 (80%+ освоения). Контент N3 откроется с промежуточной грамматикой, ~1,500 новых слов и 300+ кандзи.'
-             :n3Pct>=80?'<b>N3 освоен!</b> Готова к интенсивной подготовке N2.'
-             :`<b>Этап 2 · 92 дня.</b> ${n3Learned}/${n3Items.length} элементов изучено + 360 вопросов банка. Цель: 20 новых/день + 40 повторений + 5 вопросов банка (~90 мин/день). <b>Сдай JLPT N3 6 дек 2026.</b>`},
-      {key:'n2',icon:'📕',label:'N2',sub:'Целевой уровень',pct:n2Pct,date:'Янв → Май 2027',done:n2Pct>=80,active:activePhase==='n2',
-       detail:n2Pct>=80?'<b>N2 готов!</b> Фокус на пробных экзаменах и практике с таймером.'
-             :`<b>Этап 3 · 150 дней.</b> 360 вопросов банка N2 + ~2,500 новых слов. Цель: 20 новых/день + 50 повторений + чтение + аудирование (~120 мин/день). Цель: уровень N2 к 31 мая.`},
-      {key:'mext',icon:'🎯',label:'MEXT',sub:'Сдача экзамена',pct:mextPct,date:'Июн → Июл 2027',done:mextPct>=100,active:activePhase==='mext',
-       detail:mextPct>=100?'<b>Экзамен сдан!</b> 🏆 Поздравляем!'
-             :`<b>Этап 4 · 35 дней.</b> Экзамен MEXT 15 июн · JLPT N2 4 июл. Фокус: 1-2 пробных экзамена/день + практика с таймером (~120 мин/день). Сейчас ${mextDone}/3 уровней MEXT пройдено.`},
+    // Dynamic phase definitions — N5 → N4 → N3 → N2 → N1
+    const LEVEL_META={
+      n5:{icon:'🌱',label:'N5',sub:'Базовый уровень'},
+      n4:{icon:'📘',label:'N4',sub:'Minna L25-50'},
+      n3:{icon:'📗',label:'N3',sub:'Переходный уровень'},
+      n2:{icon:'📕',label:'N2',sub:'Целевой уровень'},
+      n1:{icon:'👑',label:'N1',sub:'Вершина'},
+    };
+    const phaseData=[
+      {key:'n5',pct:n5Pct,learned:n5Learned,total:n5Items.length,mastered:n5Mastered},
+      {key:'n4',pct:n4Pct,learned:n4Learned,total:n4Items.length,mastered:n4Mastered},
+      {key:'n3',pct:n3Pct,learned:n3Learned,total:n3Items.length,mastered:n3Mastered},
+      {key:'n2',pct:n2Pct,learned:n2Learned,total:n2BankItems.length,mastered:0},
+      {key:'n1',pct:n1Pct,learned:n1Learned,total:n1BankItems.length,mastered:0},
     ];
+    const phases=phaseData.map(p=>{
+      const meta=LEVEL_META[p.key];
+      const hasContent=p.total>0;
+      const isDone=p.pct>=80;
+      const isActive=activePhase===p.key;
+      let detail;
+      if(!hasContent){
+        detail=`<b>Закрыто.</b> Контент откроется после освоения предыдущих уровней.`;
+      }else if(isDone){
+        detail=`<b>${meta.label} освоен!</b> 🎉`;
+      }else{
+        detail=`<b>${meta.label}</b> · ${p.learned}/${p.total} элементов изучено · ${p.mastered} освоено. Цель: 80% освоения.`;
+      }
+      return {key:p.key,icon:meta.icon,label:meta.label,sub:meta.sub,pct:p.pct,done:isDone&&hasContent,active:isActive,detail};
+    });
 
     // Build progress line fill width
-    const totalPct=Math.round((n4Pct+n3Pct+n2Pct+mextPct)/4);
+    const totalPct=Math.round(phases.reduce((s,p)=>s+p.pct,0)/phases.length);
     const fillWidth=totalPct;
 
     const stepsHTML=phases.map(p=>`
       <div class="phase-step ${p.done?'done':p.active?'active':'locked'}" onclick="C.haptic('light')">
         <div class="phase-step-dot">${p.icon}</div>
         <div class="phase-step-label">${p.label}</div>
-        <div class="phase-step-date">${p.date}</div>
+        <div class="phase-step-sub">${p.sub}</div>
         <div class="phase-step-pct">${p.pct}%</div>
       </div>`).join('');
 
@@ -1754,11 +1773,11 @@ const App = (function(){
 
     slot.innerHTML=`
       <div class="sect" style="margin-top:1.1rem;display:flex;justify-content:space-between;align-items:center">
-        <span>🎯 目標 — Маршрут JLPT N2 + MEXT</span>
+        <span>🎯 目標 — Маршрут N5 → N1</span>
       </div>
       <div class="phase-roadmap">
         <div class="phase-rm-head">
-          <div class="phase-rm-title">N4 → N3 → N2 → MEXT</div>
+          <div class="phase-rm-title">N5 → N4 → N3 → N2 → N1</div>
           <div class="phase-rm-sub">${daysLeft} дней до экзамена</div>
         </div>
         <div class="phase-rm-track">
@@ -1773,7 +1792,6 @@ const App = (function(){
   }
 
   function renderJourney(){
-    const START=25, END=60;
     const have=new Set(C.lessonNums());
     const slot=document.getElementById('journey-slot');
 
@@ -1790,6 +1808,7 @@ const App = (function(){
     }
 
     const sorted=[...have].sort((a,b)=>a-b);
+    const START=sorted[0], END=sorted[sorted.length-1];
     const current=sorted.find(n=>!C.isLessonComplete(n));   // first unfinished lesson with content
     const jnode=(n)=>{
       if(!have.has(n)) return `<div class="j-node locked" aria-label="Урок ${n} скоро будет">${n}<span class="cor">🔒</span></div>`;
@@ -1798,8 +1817,12 @@ const App = (function(){
       return `<div class="j-node ${done?'done':cur?'current':''}" onclick="C.haptic('light');App.openLesson(${n})">${n}`
         + (done?'<span class="cor">✓</span>':`<span class="dot" style="background:${dot}"></span>`) + `</div>`;
     };
-    // grouped sections so the whole path to 50 scans cleanly
-    const sections=[[25,35],[36,45],[46,50],[51,55],[56,60]];
+    // build dynamic sections of ~10 lessons each
+    const sections=[];
+    for(let a=START;a<=END;a+=10){
+      const b=Math.min(a+9,END);
+      sections.push([a,b]);
+    }
     const secHtml=sections.map(([a,b])=>{
       let nodes='',done=0,total=0;
       for(let n=a;n<=b;n++){ if(have.has(n)){ total++; if(C.isLessonComplete(n)) done++; } nodes+=jnode(n); }
@@ -1810,7 +1833,7 @@ const App = (function(){
       </div>`;
     }).join('');
 
-    const total=END-START+1;
+    const total=sorted.length;
     const doneCount=sorted.filter(n=>C.isLessonComplete(n)).length;
     const pct=Math.round(doneCount/total*100);
     slot.innerHTML=`
@@ -1819,7 +1842,7 @@ const App = (function(){
         <a class="j-more" href="/roadmap.html">Подробнее →</a>
       </div>
       <div class="journey">
-        <div class="j-head"><span class="j-now">Уроки 25 → 60 · N4 + N3</span><span class="j-count">${doneCount} / ${total} готово · ${pct}%</span></div>
+        <div class="j-head"><span class="j-now">Уроки ${START} → ${END}</span><span class="j-count">${doneCount} / ${total} готово · ${pct}%</span></div>
         <div class="j-bar"><div class="f" style="width:${pct}%"></div></div>
         ${secHtml}
         <div class="j-legend">
@@ -1941,7 +1964,7 @@ const App = (function(){
 
   /* ---------- PRODUCTION RECALL runner (recall from memory → reveal → self-grade) ----------
      This is the core retrieval upgrade: instead of picking the answer from 4 options
-     (recognition), she must PRODUCE it from memory, then honestly grade how it felt
+     (recognition), the learner must PRODUCE it from memory, then honestly grade how it felt
      (Again/Hard/Good/Easy). That graded signal is exactly what the Memory engine needs,
      and effortful recall builds far more durable memory than recognition. Used for
      vocab / grammar / kanji; reading & listening stay multiple-choice (comprehension). */
@@ -2631,7 +2654,7 @@ const App = (function(){
     B:{diff:'medium',jp:'中級', en:'Средний',     color:'#e69500'},
     C:{diff:'hard',  jp:'上級', en:'Продвинутый', color:'#e53935'}
   };
-  // Real MEXT Japanese exam: ~60 min for ~30 questions = 2 min/question
+  // Practice exam: ~60 min for ~30 questions = 2 min/question
   // Our test: ~23 questions, scaled to ~75% of real per-question time
   const EXAM_TIME={A:25*60, B:30*60, C:35*60};   // practice exam minutes per level
   const PASS_PCT=60;
@@ -2935,8 +2958,8 @@ const App = (function(){
       ${placementHTML}
       <div class="jlpt-placement-banner">
         <div class="pb-title">🧭 Не знаешь свой уровень?</div>
-        <div class="pb-sub">Пройди тест — начни с N4 (наш текущий уровень контента) и двигайся вверх. Система покажет твой реальный уровень JLPT и на чём сосредоточиться.</div>
-        <button class="pb-btn" onclick="C.haptic('heavy');App.startJlpt('N4')">Начать с N4 →</button>
+        <div class="pb-sub">Пройди тест — начни с N5 и двигайся вверх. Система покажет твой реальный уровень JLPT и на чём сосредоточиться.</div>
+        <button class="pb-btn" onclick="C.haptic('heavy');App.startJlpt('N5')">Начать с N5 →</button>
       </div>
       ${card('N5')}${card('N4')}${card('N3')}${card('N2')}${card('N1')}`;
     showView('view-exam');

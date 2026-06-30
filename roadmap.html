@@ -105,7 +105,7 @@ body.dark{--bg:#1a1a2e;--card:#252542;--ink:#e8e8f0;--ink2:#a0a0c0;--ink3:#6e6e9
 
   <div class="hero">
     <div class="lbl">未来の自分への道 — Путь к будущему себе</div>
-    <div style="display:flex;align-items:flex-end;gap:12px;margin-top:10px"><div class="num" id="overall">0%</div><div style="padding-bottom:8px"><div class="lbl">Общее освоение N4</div><div class="ret" id="ret">🧬 удержание —</div></div></div>
+    <div style="display:flex;align-items:flex-end;gap:12px;margin-top:10px"><div class="num" id="overall">0%</div><div style="padding-bottom:8px"><div class="lbl">Общее освоение</div><div class="ret" id="ret">🧬 удержание —</div></div></div>
   </div>
 
   <div class="eyebrow" style="padding-left:4px">段位 — Твоя лестница рангов</div>
@@ -130,7 +130,7 @@ body.dark{--bg:#1a1a2e;--card:#252542;--ink:#e8e8f0;--ink2:#a0a0c0;--ink3:#6e6e9
     <div id="skills"></div>
   </div>
 
-  <div class="eyebrow" style="padding-left:4px">📍 Маршрут уроков — L25 до L50</div>
+  <div class="eyebrow" style="padding-left:4px">📍 Маршрут уроков</div>
   <div class="card">
     <div class="track-wrap"><div class="track-row" id="lesson-track"></div></div>
     <div class="track-progress-bar"><div class="track-progress-fill" id="track-fill"></div></div>
@@ -163,19 +163,42 @@ function render(){
   document.getElementById('overall').textContent=overall+'%';
   const ret=C.retention();document.getElementById('ret').textContent='🧬 удержание '+(ret===null?'—':ret+'%');
 
-  // ladder
+  // ladder — dynamic N5 → N4 → N3 → N2 → N1
+  const allItems={vocab:C.ITEMS.vocab||[],grammar:C.ITEMS.grammar||[],kanji:C.ITEMS.kanji||[]};
+  const srs=C.getSRS();
+  function levelPct(level){
+    const items=[...allItems.vocab,...allItems.grammar,...allItems.kanji].filter(it=>it.level===level);
+    if(!items.length)return 0;
+    const mastered=items.filter(it=>C.itemMastery(it.id)>=80).length;
+    return Math.round(mastered/items.length*100);
+  }
+  function levelLearned(level){
+    const items=[...allItems.vocab,...allItems.grammar,...allItems.kanji].filter(it=>it.level===level);
+    return items.filter(it=>srs[it.id]&&srs[it.id].reps>0).length;
+  }
+  function levelTotal(level){
+    return [...allItems.vocab,...allItems.grammar,...allItems.kanji].filter(it=>it.level===level).length;
+  }
+  const jlptBank=window.JLPT_BANK||[];
+  function bankPct(level){
+    const items=jlptBank.filter(q=>q.level===level);
+    if(!items.length)return 0;
+    const learned=items.filter(q=>srs[q.id]&&srs[q.id].reps>0).length;
+    return Math.round(learned/items.length*100);
+  }
+  const n5P=levelPct('N5'),n4P=levelPct('N4'),n3P=levelPct('N3');
+  const n2P=bankPct('N2'),n1P=bankPct('N1');
   const rungs=[
-    {n:'Выпускник N5',ic:'✅',state:'done',sub:'База завершена'},
-    {n:'Подмастерье N4',ic:'🔥',state:'cur',sub:overall+'% освоено · Этап 1: июл→сен 2026'},
-    {n:'Исследователь N3',ic:'🧭',state:'locked',sub:'Этап 2: окт→дек 2026 · JLPT N3 6 дек'},
-    {n:'Ученик N2',ic:'📚',state:'locked',sub:'Этап 3: янв→май 2027 · Целевой уровень'},
-    {n:'Мастер тестов',ic:'🎯',state:'locked',sub:'Этап 4: июн→июл 2027 · Пробный тест 15 июн'},
-    {n:'Мастер N1',ic:'👑',state:'locked',sub:'Дальше — вершина'}
+    {n:'Выпускник N5',ic:'🌱',state:n5P>=80?'done':'cur',sub:n5P+'% освоено · '+levelLearned('N5')+'/'+levelTotal('N5')+' элементов'},
+    {n:'Подмастерье N4',ic:'📘',state:n5P>=80?(n4P>=80?'done':'cur'):'locked',sub:n4P+'% освоено · '+levelLearned('N4')+'/'+levelTotal('N4')+' элементов'},
+    {n:'Исследователь N3',ic:'📗',state:n5P>=80&&n4P>=80?(n3P>=80?'done':'cur'):'locked',sub:n3P+'% освоено · '+levelLearned('N3')+'/'+levelTotal('N3')+' элементов'},
+    {n:'Ученик N2',ic:'📕',state:n5P>=80&&n4P>=80&&n3P>=80?(n2P>=80?'done':'cur'):'locked',sub:n2P+'% · '+jlptBank.filter(q=>q.level==='N2').length+' вопросов банка'},
+    {n:'Мастер N1',ic:'👑',state:n5P>=80&&n4P>=80&&n3P>=80&&n2P>=50?'cur':'locked',sub:n1P+'% · '+jlptBank.filter(q=>q.level==='N1').length+' вопросов банка'},
   ];
   document.getElementById('ladder').innerHTML=rungs.map(r=>`<div class="rung ${r.state}"><div class="dot">${r.ic}</div><div><div class="name">${r.n}</div><div class="sub">${r.sub}</div></div></div>`).join('');
 
   // projection
-  const targets=[{g:'🎯 Готова к тесту (80%)',t:80},{g:'🌱 Готов к N3 (90%)',t:90},{g:'🌳 Готов к N2 (95%)',t:95},{g:'👑 Готов к N1 (99%)',t:99}];
+  const targets=[{g:'🌱 Готова к N4 (80%)',t:80},{g:'📗 Готов к N3 (90%)',t:90},{g:'📕 Готов к N2 (95%)',t:95},{g:'👑 Готов к N1 (99%)',t:99}];
   document.getElementById('projection').innerHTML=targets.map(x=>{
     const d=C.daysToReady(x.t);
     const txt=d<=0?'Готов ✓':(d>900?'Продолжай':'~'+d+' дней');
@@ -183,17 +206,14 @@ function render(){
   }).join('') + `
     <div style="margin-top:12px;padding:10px 12px;background:var(--bg);border-radius:12px;font-size:12px;font-weight:600;color:var(--ink2);line-height:1.6">
       <div style="font-weight:900;color:var(--ink);margin-bottom:6px">📅 График тестов</div>
-      <div>📘 <b>JLPT N3</b> — 6 дек 2026 (воскресенье)</div>
-      <div>🎯 <b>Пробный тест</b> — 15 июн 2027</div>
-      <div>📕 <b>JLPT N2</b> — 4 июл 2027 (воскресенье)</div>
-      <div style="margin-top:6px;color:var(--ink3)">Итого: ~369 дней от сегодня · 2 часа/день занятий</div>
+      <div>📗 <b>JLPT N3</b> — 6 дек 2026</div>
+      <div>📕 <b>JLPT N2</b> — 4 июл 2027</div>
+      <div style="margin-top:6px;color:var(--ink3)">Прогноз основан на твоём темпе · 2 часа/день занятий</div>
     </div>`;
 
   // stats
   const log=C.activityLog();const activeDays=Object.keys(log).length;
-  const srs=C.getSRS();const learned=Object.values(srs).filter(s=>s.reps>0).length;
-  const mextDone=[C.DB.get('exam_pass_A'),C.DB.get('exam_pass_B'),C.DB.get('exam_pass_C')].filter(Boolean).length;
-  const mextPct=Math.round(mextDone/3*100);
+  const learned=Object.values(srs).filter(s=>s.reps>0).length;
   document.getElementById('stats').innerHTML=`
     <div class="stat"><div class="v" style="color:var(--gold)">${C.getMomentum().value}</div><div class="l">⚡ Импульс</div></div>
     <div class="stat"><div class="v">${activeDays}</div><div class="l">Активных дней</div></div>
@@ -214,11 +234,12 @@ function render(){
   // skills
   document.getElementById('skills').innerHTML=C.DIMS.map(d=>{const m=C.dimMastery(d);const meta=DIM_META[d];return `<div class="sk"><div class="sk-top"><span>${meta.label}</span><span>${m===null?'—':m+'%'}</span></div><div class="sk-track"><div class="sk-fill" style="width:${m||0}%;background:${meta.color}"></div></div></div>`}).join('');
 
-  // lesson track L25-L50
+  // lesson track — dynamic based on available packs
   (function(){
     const packs=C.PACKS();
-    const packNums=new Set(packs.map(p=>p.lessonNum));
-    const srs=C.getSRS();
+    const packNums=new Set(packs.map(p=>p.lessonNum).filter(Boolean).sort((a,b)=>a-b));
+    const allNums=[...packNums];
+    const srsLocal=C.getSRS();
     function lessonMastery(lessonNum){
       const p=packs.find(x=>x.lessonNum===lessonNum);
       if(!p)return null;
@@ -227,14 +248,15 @@ function render(){
       (p.grammar||[]).forEach(g=>ids.push(g.id));
       (p.kanji||[]).forEach(k=>ids.push(k.id));
       if(!ids.length)return null;
-      const avg=ids.reduce((s,id)=>{const st=srs[id];return s+(st&&st.reps>0?Math.min(1,st.interval/30):0);},0)/ids.length;
+      const avg=ids.reduce((s,id)=>{const st=srsLocal[id];return s+(st&&st.reps>0?Math.min(1,st.interval/30):0);},0)/ids.length;
       return Math.round(avg*100);
     }
     const trackEl=document.getElementById('lesson-track');
     let html='';
     let doneCount=0;
     let firstCurrent=-1;
-    for(let n=25;n<=50;n++){
+    for(let i=0;i<allNums.length;i++){
+      const n=allNums[i];
       const hasPack=packNums.has(n);
       const m=hasPack?lessonMastery(n):null;
       const isDone=m!==null&&m>=60;
@@ -243,7 +265,7 @@ function render(){
       if(isDone)doneCount++;
       const cls=isDone?'done':isCurrent?'current':'';
       const icon=isDone?'✓':n;
-      if(n>25)html+=`<div class="track-line${isDone||(!isDone&&n-1>=25&&packNums.has(n-1)&&lessonMastery(n-1)>=60)?'':''} ${n<=firstCurrent&&firstCurrent>-1||isDone?'done':''}"></div>`;
+      if(i>0)html+=`<div class="track-line"></div>`;
       html+=`<div class="track-node ${cls}"><div class="track-circle">${icon}</div><div class="track-label">L${n}</div></div>`;
     }
     trackEl.innerHTML=html;
@@ -255,7 +277,7 @@ function render(){
       if(prevNode&&prevNode.classList.contains('done'))line.classList.add('done');
       else line.classList.remove('done');
     });
-    const pct=Math.round(doneCount/26*100);
+    const pct=allNums.length?Math.round(doneCount/allNums.length*100):0;
     document.getElementById('track-fill').style.width=pct+'%';
   })();
 
@@ -278,10 +300,11 @@ function render(){
     {ic:'🌱',t:'Первые шаги',sub:'Изучи первые 5 элементов',done:learnedCount>=5},
     {ic:'📖',t:'Первая прочитанная история',sub:'Заверши текст для чтения',done:Object.keys(srs).some(id=>(C.BY_ID[id]||{}).dim==='reading'&&srs[id].reps>0)},
     {ic:'🔥',t:'Импульс 30',sub:'Достигни 30 импульса',done:C.getMomentum().value>=30},
-    {ic:'📘',t:'N4 80% освоение',sub:'Этап 1 завершён · к 30 сен 2026',done:overall>=80},
-    {ic:'📗',t:'Экзамен JLPT N3',sub:'Сдача 6 дек 2026',done:overall>=90},
-    {ic:'📕',t:'Готов к уровню N2',sub:'Этап 3 завершён · к 31 мая 2027',done:overall>=95},
-    {ic:'🎯',t:'Сдача пробного теста',sub:'15 июн 2027',done:mextPct>=100}
+    {ic:'🌱',t:'N5 80% освоение',sub:'Базовый уровень завершён',done:n5P>=80},
+    {ic:'📘',t:'N4 80% освоение',sub:'Этап 1 завершён',done:n4P>=80},
+    {ic:'📗',t:'N3 80% освоение',sub:'Переходный уровень завершён',done:n3P>=80},
+    {ic:'📕',t:'Готов к уровню N2',sub:'Целевой уровень',done:n2P>=80},
+    {ic:'👑',t:'Мастер N1',sub:'Вершина',done:n1P>=80}
   ];
   document.getElementById('milestones').innerHTML=mss.map(m=>`<div class="ms"><div class="ic">${m.done?'✅':m.ic}</div><div><div class="mt ${m.done?'done':''}">${m.t}</div><div class="msub">${m.sub}</div></div></div>`).join('');
 }

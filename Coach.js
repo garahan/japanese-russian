@@ -83,7 +83,7 @@
     ctx = ctx || {};
     const now = ctx.now || Date.now();
     const today = dayKey(new Date(now));
-    const name = ctx.name || 'Mahym';
+    const name = ctx.name || 'Ученик';
 
     const seen = items.filter(it => it.state && it.state.attempts);
     const due  = seen.filter(it => Memory.isDue(it.state, now));

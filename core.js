@@ -210,10 +210,10 @@
     }
     return wsum ? Math.round(total / wsum) : 0;
   }
-  // Retention: right now, of everything she has learned, how much can she still
+  // Retention: right now, of everything the learner has studied, how much can they still
   // recall? = mean current Retrievability (R) across items with ≥1 rep. This is the
   // live "is my memory healthy today" number — it dips as reviews fall due and snaps
-  // back up when she clears them.
+  // back up when they clear them.
   function retention() {
     const s = getSRS(); const ids = Object.keys(s).filter(id => s[id].attempts > 0);
     if (!ids.length) return null;

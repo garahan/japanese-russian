@@ -49,8 +49,8 @@ line(`before:  S=${fmt(lap.S)}d  stage=${Memory.stageOf(lap)}  next=${lap.interv
 lap = Memory.review(lap, 1, lap.last + lap.interval*DAY);
 line(`forgot:  S=${fmt(lap.S)}d  stage=${Memory.stageOf(lap)}  next=${lap.interval}d  (lapses=${lap.lapses})`);
 
-line('\n══════════ 4) THE COACH SIZES THE DAY TO HER HABIT ══════════');
-line('Identical backlog. The only difference is how consistent she has been.');
+line('\n══════════ 4) THE COACH SIZES THE DAY TO THE LEARNER HABIT ══════════');
+line('Identical backlog. The only difference is how consistent the learner has been.');
 line('Shaky habit → tiny ask (protect Ability). Solid habit → a real session.\n');
 const backlog = [];
 for (let i = 0; i < 40; i++) {

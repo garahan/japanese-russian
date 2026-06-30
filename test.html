@@ -334,7 +334,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     const elapsed=Math.round((endTime-startTime)/1000);
 
     // Report results to server
-    try{fetch('/api/results',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'test',secret:testData.s||'begench1994garahan',name:'Mahym',correct,total:q.length,pct,time:elapsed,weakIds:weakIds.slice(0,10)})}).catch(()=>{})}catch(e){}
+    try{fetch('/api/results',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'test',secret:testData.s||'begench1994garahan',correct,total:q.length,pct,time:elapsed,weakIds:weakIds.slice(0,10)})}).catch(()=>{})}catch(e){}
     const mins=Math.floor(elapsed/60),secs=elapsed%60;
     const timeStr=mins+'m '+(secs<10?'0':'')+secs+'s';
 

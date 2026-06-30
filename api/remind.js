@@ -1,34 +1,33 @@
 // /api/remind.js — sends a gentle DAILY NUDGE to the learner's Telegram.
 //
 // This is the anti-procrastination piece. A static PWA can't reliably wake
-// itself up (especially on iOS), so instead of relying on her to remember,
-// Vercel Cron hits this endpoint once a day and Telegram pokes her.
+// itself up (especially on iOS), so instead of relying on the learner to remember,
+// Vercel Cron hits this endpoint once a day and Telegram pokes them.
 //
 // It is deliberately GENERIC ("time for 5 minutes") rather than "12 items due",
-// because due-ness lives in her browser's localStorage and the server can't see
+// because due-ness lives in the browser's localStorage and the server can't see
 // it yet. Once you add progress-sync (Phase 4) this can become specific.
 //
 // ── Setup ────────────────────────────────────────────────────────────────────
-// 1. She must message the bot once (open it in Telegram, tap Start). Telegram
+// 1. The learner must message the bot once (open it in Telegram, tap Start). Telegram
 //    won't let a bot message a user who hasn't started a chat with it.
-// 2. Get HER chat id (it can be the same chat you already use, or her own):
+// 2. Get the chat id:
 //      https://api.telegram.org/bot<TELEGRAM_TOKEN>/getUpdates  → read chat.id
 // 3. Env vars on Vercel:
 //      TELEGRAM_TOKEN     (you already have this)
-//      REMIND_CHAT_ID     her chat id   (falls back to TELEGRAM_CHAT_ID if unset)
+//      REMIND_CHAT_ID     chat id   (falls back to TELEGRAM_CHAT_ID if unset)
 //      CRON_SECRET        any random string — guards this endpoint
-//      REMIND_NAME        optional, defaults to "Mahym"
+//      REMIND_NAME        optional, defaults to "Ученик"
 // 4. The cron schedule is in vercel.json. Vercel cron runs in UTC; the included
-//    schedule "0 0 * * *" = 09:00 in Japan (JST = UTC+9). Adjust if she'd rather
-//    be nudged at a different hour. 
+//    schedule "0 0 * * *" = 09:00 in Japan (JST = UTC+9). Adjust as needed. 
 // ─────────────────────────────────────────────────────────────────────────────
 
 const TOKEN = process.env.TELEGRAM_TOKEN;
 const CHAT_ID = process.env.REMIND_CHAT_ID || process.env.TELEGRAM_CHAT_ID;
 const CRON_SECRET = process.env.CRON_SECRET;
-const NAME = process.env.REMIND_NAME || 'Mahym';
+const NAME = process.env.REMIND_NAME || 'Ученик';
 
-// A small rotating set so the nudge doesn't become wallpaper she stops seeing.
+// A small rotating set so the nudge doesn't become wallpaper the learner stops seeing.
 // Tone matches the app's philosophy: a missed day is not a failure, just start.
 const MESSAGES = [
   `🌸 <b>${NAME}</b>, 5 minutes of Japanese today?\nJust open the app and tap <b>Start training</b> — that's the whole job.`,
