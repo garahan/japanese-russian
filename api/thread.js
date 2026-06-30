@@ -1,16 +1,14 @@
 // /api/thread.js — generates dopamine-rich Japanese learning threads
 // Twitter-style threads that make learning addictive.
-// Uses Gemini Flash (free tier) if available, then Anthropic, then static fallback.
+// Uses Gemini Flash (free tier) if available, then static fallback.
 //
 // GET  /api/thread           → { ok, thread:{...} }  (one random thread)
 // POST /api/thread  (admin)  → { ok, thread:{...} }  (generate fresh via AI)
 //
-// Env: GEMINI_API_KEY (free tier, preferred), ANTHROPIC_API_KEY (fallback paid)
+// Env: GEMINI_API_KEY (free tier, optional), GEMINI_MODEL (optional)
 
 const GEMINI_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
-const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-const ANTHROPIC_MODEL = process.env.GEN_MODEL || 'claude-sonnet-4-6';
 
 // ── Static thread bank (40+ threads) ─────────────────────────────────────────
 const STATIC_THREADS = [
@@ -951,33 +949,6 @@ RULES:
   }
 }
 
-// ── Anthropic (paid fallback) ────────────────────────────────────────────────
-async function generateViaAnthropic(userLevel) {
-  if (!ANTHROPIC_KEY) return null;
-  const system = `You generate short, dopamine-triggering Japanese learning threads in Twitter/X style.
-Output a JSON object and NOTHING else — no markdown fences, no commentary.
-Shape:
-{ "id":"unique-slug","emoji":"one emoji","title":"catchy title (max 60 chars)","tag":"Kanji|Grammar|Vocabulary|Culture|Listening|Reading","difficulty":"easy|medium|hard","posts":["short post 1","short post 2",...],"cta":"call to action pointing to a drill type" }
-RULES: 4-7 posts, each 100-300 chars. Include difficulty field (easy/medium/hard). SURPRISING/funny/mind-blowing. Teach real Japanese. Use kanji/kana with English. Last post = learning hook. NO inappropriate content. Title must trigger curiosity.`;
-  try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: ANTHROPIC_MODEL, max_tokens: 1200, system,
-        messages: [{ role: 'user', content: `Generate one fresh Japanese learning thread. Level: ${userLevel || 'N4'}. Random surprising topic.` }],
-      }),
-    });
-    const j = await r.json();
-    const text = j.content && j.content[0] && j.content[0].text;
-    if (!text) return null;
-    const clean = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(clean);
-  } catch (e) {
-    return null;
-  }
-}
-
 // ── Main handler ─────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
@@ -994,7 +965,6 @@ module.exports = async (req, res) => {
     const level = body.level || 'N4';
     let thread = await generateViaGemini(level);
     let source = 'gemini';
-    if (!thread) { thread = await generateViaAnthropic(level); source = 'anthropic'; }
     if (!thread) { thread = pickStatic(); source = 'static'; }
     return res.status(200).json({ ok: true, thread, source });
   }
@@ -1006,8 +976,6 @@ module.exports = async (req, res) => {
     if (useAI) {
       let thread = await generateViaGemini(level);
       if (thread) return res.status(200).json({ ok: true, thread, source: 'gemini' });
-      thread = await generateViaAnthropic(level);
-      if (thread) return res.status(200).json({ ok: true, thread, source: 'anthropic' });
     }
     return res.status(200).json({ ok: true, thread: pickStatic(), source: 'static' });
   }

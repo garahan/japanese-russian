@@ -1,15 +1,15 @@
 // /api/generate.js — generates ONE Lesson Pack from a target list using the
-// Anthropic API, then returns it for the admin to validate + save.
+// Gemini API (free tier), then returns it for the admin to validate + save.
 //
 // POST /api/generate   (x-admin-password)
 //   body: { level, module, moduleLabel, lesson, lessonLabel,
 //           targets: { vocab:[], grammar:[], kanji:[] } }
 //   → { ok:true, pack:{...} }   (NOT saved — review in the admin, then add)
 //
-// Env: ANTHROPIC_API_KEY (required), ADMIN_PASSWORD (gate), GEN_MODEL (optional).
+// Env: GEMINI_API_KEY (required), ADMIN_PASSWORD (gate), GEMINI_MODEL (optional).
 // The key stays server-side — never put it in client source like RESULTS_SECRET.
 
-const MODEL = process.env.GEN_MODEL || 'claude-sonnet-4-6'; // bump to an Opus model for higher quality
+const MODEL = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
 
 // Kept identical to the harness + admin Golden Rule so generated packs pass.
 const SYSTEM = `You generate JLPT study content for a personal Japanese app. Output ONE Lesson Pack as a single JSON object and NOTHING else — no markdown fences, no commentary, no trailing text.
@@ -76,8 +76,8 @@ module.exports = async (req, res) => {
   if ((req.headers['x-admin-password'] || '') !== process.env.ADMIN_PASSWORD) {
     return res.status(401).json({ ok: false, error: 'Unauthorized' });
   }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return res.status(500).json({ ok: false, error: 'ANTHROPIC_API_KEY not set' });
+  if (!process.env.GEMINI_API_KEY) {
+    return res.status(500).json({ ok: false, error: 'GEMINI_API_KEY not set' });
   }
 
   let body;
@@ -85,24 +85,20 @@ module.exports = async (req, res) => {
   catch { return res.status(400).json({ ok: false, error: 'Bad JSON' }); }
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`;
+    const r = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 8000,
-        system: SYSTEM,
-        messages: [{ role: 'user', content: buildUser(body) }]
+        systemInstruction: { parts: [{ text: SYSTEM }] },
+        contents: [{ parts: [{ text: buildUser(body) }] }],
+        generationConfig: { temperature: 0.7, maxOutputTokens: 8000 }
       })
     });
     const j = await r.json();
     if (j.error) return res.status(502).json({ ok: false, error: j.error.message || 'API error' });
 
-    const text = (j.content || []).map((b) => (b.type === 'text' ? b.text : '')).join('').trim();
+    const text = (j.candidates && j.candidates[0] && j.candidates[0].content && j.candidates[0].content.parts && j.candidates[0].content.parts[0] && j.candidates[0].content.parts[0].text || '').trim();
     let pack;
     try { pack = JSON.parse(stripFences(text)); }
     catch (e) { return res.status(422).json({ ok: false, error: 'Model did not return valid JSON', raw: text.slice(0, 400) }); }

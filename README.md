@@ -48,8 +48,8 @@ api/
   logs.js               Fetch activity logs for admin dashboard
   seed.js               One-time content seeder (merge, idempotent)
   remind.js             Scheduled Telegram reminders (cron)
-  generate.js           AI lesson pack generation (Anthropic)
-  thread.js             AI cultural thread generation (Gemini/Anthropic)
+  generate.js           AI lesson pack generation (Gemini, free tier)
+  thread.js             AI cultural thread generation (Gemini, free tier)
   debug.js              Health check endpoint
 ```
 
