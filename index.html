@@ -1072,7 +1072,7 @@ body.dark .feed-timer{background:linear-gradient(135deg,rgba(67,97,238,.1),rgba(
 <!-- ===================== THREAD FEED (dopamine threads) ===================== -->
 <div class="view" id="view-feed">
   <div class="feed-header">
-    <div class="feed-header-title">🌸 日本語スレッド</div>
+    <div class="feed-header-title">🌸 Лента японского</div>
     <div class="feed-header-sub" id="feed-remaining">Загрузка…</div>
     <div class="feed-dots" id="feed-dots"></div>
   </div>
@@ -3277,7 +3277,7 @@ const App = (function(){
 
     // Update header subtitle
     if (remaining > 0) {
-      sub.textContent = `あと${remaining}スレッド · 日本語を読もう`;
+      sub.textContent = `Ещё ${remaining} треда · Читайте японский`;
     } else {
       // Calculate time until midnight
       const now = new Date();
@@ -3285,12 +3285,12 @@ const App = (function(){
       tomorrow.setHours(24, 0, 0, 0);
       const hours = Math.floor((tomorrow - now) / 3600000);
       const mins = Math.floor(((tomorrow - now) % 3600000) / 60000);
-      sub.textContent = `今日のスレッドは全部読みました · あと${hours}時間${mins}分`;
+      sub.textContent = `Все треды на сегодня прочитаны · ещё ${hours} ч ${mins} мин`;
     }
 
     if (s.threads.length === 0 && remaining > 0) {
       // Show loading + auto-fetch first thread
-      body.innerHTML = `<div class="feed-loading"><div class="fl-spinner"></div><div class="fl-text">スレッドを読み込んでいます…</div></div>`;
+      body.innerHTML = `<div class="feed-loading"><div class="fl-spinner"></div><div class="fl-text">Загрузка треда…</div></div>`;
       await fetchAndAddThread();
     }
 
@@ -3359,19 +3359,19 @@ const App = (function(){
     dotsEl.innerHTML = dotsHTML;
 
     if (remaining > 0) {
-      sub.textContent = `あと${remaining}スレッド · 日本語を読もう`;
+      sub.textContent = `Ещё ${remaining} треда · Читайте японский`;
     } else {
       const now = new Date();
       const tomorrow = new Date(now);
       tomorrow.setHours(24, 0, 0, 0);
       const hours = Math.floor((tomorrow - now) / 3600000);
       const mins = Math.floor(((tomorrow - now) % 3600000) / 60000);
-      sub.textContent = `今日のスレッドは全部読みました · あと${hours}時間${mins}分`;
+      sub.textContent = `Все треды на сегодня прочитаны · ещё ${hours} ч ${mins} мин`;
     }
 
-    // Tag class mapping for Japanese tags
-    const tagClassMap = { '日常':'t-Culture', '文化':'t-Culture', '自然':'t-Reading', '仕事':'t-Grammar', '料理':'t-Vocabulary', '勉強':'t-Kanji', '旅行':'t-Reading', '健康':'t-Vocabulary', 'ため口':'t-Listening' };
-    const diffLabel = { easy:'初級', medium:'中級', hard:'上級' };
+    // Tag class mapping for tags
+    const tagClassMap = { '日常':'t-Culture', '文化':'t-Culture', '自然':'t-Reading', '仕事':'t-Grammar', '料理':'t-Vocabulary', '勉強':'t-Kanji', '旅行':'t-Reading', '健康':'t-Vocabulary', 'ため口':'t-Listening', 'Kanji':'t-Kanji', 'Grammar':'t-Grammar', 'Vocabulary':'t-Vocabulary', 'Culture':'t-Culture', 'Listening':'t-Listening', 'Reading':'t-Reading' };
+    const diffLabel = { easy:'Начальный', medium:'Средний', hard:'Продвинутый' };
     const diffIcon = { easy:'🟢', medium:'🟡', hard:'🔴' };
 
     let html = '';
@@ -3419,7 +3419,7 @@ const App = (function(){
     });
 
     if (remaining > 0) {
-      html += `<button class="feed-more" onclick="App.loadNextThread()">🌸 次のスレッドを読む <span style="opacity:.7">(あと${remaining})</span></button>`;
+      html += `<button class="feed-more" onclick="App.loadNextThread()">🌸 Читать следующий тред <span style="opacity:.7">(ещё ${remaining})</span></button>`;
     } else {
       const now = new Date();
       const tomorrow = new Date(now);
@@ -3428,9 +3428,9 @@ const App = (function(){
       const mins = Math.floor(((tomorrow - now) % 3600000) / 60000);
       html += `<div class="feed-empty">
         <div class="feed-empty-icon">🌸</div>
-        <div class="feed-empty-title">今日は全部読みました！</div>
-        <div class="feed-empty-sub">${FEED_DAILY_LIMIT}スレッド全部読みました。明日も新しいスレッドが待っています。</div>
-        <div class="feed-timer">⏰ あと${hours}時間${mins}分</div>
+        <div class="feed-empty-title">Все треды на сегодня прочитаны!</div>
+        <div class="feed-empty-sub">Вы прочитали все ${FEED_DAILY_LIMIT} треда. Завтра вас ждут новые треды.</div>
+        <div class="feed-timer">⏰ ещё ${hours} ч ${mins} мин</div>
       </div>`;
     }
 
@@ -3454,7 +3454,7 @@ const App = (function(){
     // Append loading at the bottom
     const loadingEl = document.createElement('div');
     loadingEl.className = 'feed-loading';
-    loadingEl.innerHTML = '<div class="fl-spinner"></div><div class="fl-text">スレッドを読み込んでいます…</div>';
+    loadingEl.innerHTML = '<div class="fl-spinner"></div><div class="fl-text">Загрузка треда…</div>';
     body.appendChild(loadingEl);
 
     const ok = await fetchAndAddThread();
