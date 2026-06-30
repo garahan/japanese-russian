@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1c1c2e">
+<title>文法 — Справочник по грамматике</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf5f0;--card:#fff;--ink:#1a1a2e;--ink3:#6b6b80;--border:#eee5dc;
+  --blue:#2979ff;--green:#00c853;--gold:#ffb300;--red:#ff4b6e;--purple:#8e24aa;
+  --blue-soft:#e3f0ff;--green-soft:#e8f5e9;--gold-soft:#fff8e1;--red-soft:#fce4ec;
+  --shadow:0 2px 12px rgba(0,0,0,.06);--spring:cubic-bezier(.34,1.56,.64,1)
+}
+body.dark{
+  --bg:#161620;--card:#1e1e2e;--ink:#e8e8f0;--ink3:#9999b0;--border:#333348;
+  --blue-soft:#1a2332;--green-soft:#1a2a1e;--gold-soft:#2a2418;--red-soft:#2a1a1e;
+  --shadow:0 2px 12px rgba(0,0,0,.3)
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter','Noto Sans JP',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;transition:background .3s}
+.gr-head{background:linear-gradient(135deg,var(--red),#ff7a59);color:#fff;padding:calc(env(safe-area-inset-top) + 20px) 20px 24px;text-align:center;position:relative}
+.gr-head h1{font-size:22px;font-weight:900;font-family:'Noto Sans JP';margin-bottom:4px}
+.gr-head p{font-size:13px;opacity:.9}
+.gr-back{position:absolute;top:calc(env(safe-area-inset-top) + 12px);left:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.gr-dark-toggle{position:absolute;top:calc(env(safe-area-inset-top) + 12px);right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:40px;height:40px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.gr-search{padding:12px 16px;position:sticky;top:0;z-index:10;background:var(--bg)}
+.gr-search input{width:100%;padding:12px 16px;border:2px solid var(--border);border-radius:14px;background:var(--card);color:var(--ink);font-size:15px;font-family:inherit}
+.gr-search input:focus{outline:none;border-color:var(--blue)}
+.gr-chips{display:flex;gap:6px;padding:8px 16px 12px;overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;top:48px;z-index:9;background:var(--bg)}
+.gr-chip{white-space:nowrap;padding:7px 14px;border-radius:20px;background:var(--card);border:1.5px solid var(--border);color:var(--ink3);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;flex-shrink:0}
+.gr-chip:active{transform:scale(.94)}
+.gr-chip.active{background:var(--red);color:#fff;border-color:var(--red)}
+.gr-body{padding:0 16px 80px}
+.gr-lesson{margin-bottom:1.2rem}
+.gr-lesson-head{font-size:15px;font-weight:900;font-family:'Noto Sans JP';padding:10px 4px;border-bottom:2px solid var(--border);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.gr-lesson-head .gr-lv{font-size:11px;color:var(--ink3);font-weight:700;background:var(--bg);padding:3px 8px;border-radius:10px}
+
+/* Collapsible grammar flashcards */
+.gr-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;margin-bottom:8px;box-shadow:var(--shadow);overflow:hidden;transition:border-color .2s}
+.gr-card.open{border-color:var(--red);box-shadow:0 4px 16px rgba(255,75,110,.12)}
+.gr-card-head{padding:14px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;user-select:none}
+.gr-card-head:active{background:var(--bg)}
+.gr-card-point{font-size:18px;font-weight:900;font-family:'Noto Sans JP';color:var(--red);flex:1}
+.gr-card-arrow{font-size:14px;color:var(--ink3);transition:transform .3s var(--spring);flex-shrink:0}
+.gr-card.open .gr-card-arrow{transform:rotate(90deg)}
+.gr-card-body{display:none;padding:0 16px 14px;animation:grFadeIn .3s ease}
+.gr-card.open .gr-card-body{display:block}
+@keyframes grFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.gr-section-label{font-size:11px;font-weight:900;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px}
+.gr-exp{font-size:14px;color:var(--ink);line-height:1.75;margin-bottom:10px;padding:10px 12px;background:var(--blue-soft);border-radius:10px;border-left:3px solid var(--blue)}
+.gr-examples{list-style:none;padding:0;margin:0}
+.gr-examples li{font-size:14px;padding:8px 12px;background:var(--bg);border-radius:10px;margin-bottom:5px;font-family:'Noto Sans JP';line-height:1.6;display:flex;align-items:flex-start;gap:6px}
+.gr-examples li::before{content:'例';color:var(--gold);font-weight:900;font-size:11px;flex-shrink:0;margin-top:3px}
+.gr-listen{display:inline-flex;align-items:center;gap:6px;background:var(--blue-soft);color:var(--blue);border:none;border-radius:20px;padding:6px 14px;font-weight:800;font-size:12px;cursor:pointer;margin-top:8px}
+.gr-listen:active{transform:scale(.92)}
+.gr-empty{text-align:center;padding:3rem 1rem;color:var(--ink3)}
+.gr-empty .es-icon{font-size:48px;margin-bottom:.5rem}
+.gr-empty .es-title{font-size:18px;font-weight:900;color:var(--ink)}
+.gr-count{font-size:12px;color:var(--ink3);font-weight:700;text-align:center;padding:4px 0 8px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="gr-head">
+  <button class="gr-back" onclick="location.href='/index.html'">←</button>
+  <h1>文法 — Справочник по грамматике</h1>
+  <p>Все грамматические конструкции · поиск · повторение</p>
+  <button class="gr-dark-toggle" id="gr-dark" onclick="toggleDark()">🌙</button>
+</div>
+<div class="gr-search"><input type="text" id="gr-input" placeholder="🔍 Поиск грамматических конструкций..."></div>
+<div class="gr-chips" id="gr-chips"></div>
+<div class="gr-count" id="gr-count"></div>
+<div class="gr-body" id="gr-body"></div>
+
+<script src="/seed-data.js"></script>
+<script src="/memory-engine.js"></script>
+<script src="/Coach.js"></script>
+<script src="/core.js"></script>
+<script>
+const C=window.Core;
+let allGrammar=[];
+let activeLesson='all';
+let _sayReg={};let _sayN=0;
+function sayRef(t){const k='s'+(++_sayN);_sayReg[k]=t||'';return k;}
+function sayNow(k){if(!('speechSynthesis' in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(_sayReg[k]||'');u.lang='ja-JP';u.rate=.9;speechSynthesis.speak(u)}catch(e){}}
+
+function collectGrammar(){
+  const packs=C.PACKS();
+  const result=[];
+  packs.forEach(p=>{
+    const lessonNum=p.lessonNum||p.lesson;
+    const lessonLabel=p.lessonLabel||('Урок '+lessonNum);
+    (p.grammar||[]).forEach(g=>{
+      result.push({...g,lessonNum,lessonLabel,level:p.level||'N4'});
+    });
+  });
+  return result.sort((a,b)=>(a.lessonNum||0)-(b.lessonNum||0));
+}
+
+function renderChips(){
+  const lessons=[...new Set(allGrammar.map(g=>g.lessonNum))].sort((a,b)=>a-b);
+  const chips=document.getElementById('gr-chips');
+  let html=`<button class="gr-chip ${activeLesson==='all'?'active':''}" data-lesson="all">Все</button>`;
+  lessons.forEach(l=>{
+    html+=`<button class="gr-chip ${activeLesson===l?'active':''}" data-lesson="${l}">L${l}</button>`;
+  });
+  chips.innerHTML=html;
+  // Attach event listeners
+  chips.querySelectorAll('.gr-chip').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const val=btn.getAttribute('data-lesson');
+      activeLesson = val==='all' ? 'all' : parseInt(val);
+      renderChips();
+      filterGrammar();
+    });
+  });
+}
+
+function filterGrammar(){
+  const q=(document.getElementById('gr-input').value||'').toLowerCase().trim();
+  let filtered=allGrammar;
+  if(activeLesson!=='all') filtered=filtered.filter(g=>g.lessonNum===activeLesson);
+  if(q) filtered=filtered.filter(g=>
+    (g.point||'').toLowerCase().includes(q)||
+    (g.explanation||'').toLowerCase().includes(q)||
+    (g.examples||[]).some(e=>e.toLowerCase().includes(q))
+  );
+  renderGrammar(filtered);
+}
+
+function renderGrammar(items){
+  const body=document.getElementById('gr-body');
+  const countEl=document.getElementById('gr-count');
+  countEl.textContent=items.length+' грамматическ'+(items.length===1?'ая конструкция':(items.length>=2&&items.length<=4?'ие конструкции':'их конструкций'));
+  if(!items.length){
+    body.innerHTML=`<div class="gr-empty"><div class="es-icon">📚</div><div class="es-title">Грамматика не найдена</div><div style="font-size:14px;margin-top:4px">Попробуйте другой поиск или фильтр уроков</div></div>`;
+    return;
+  }
+  // Group by lesson
+  const byLesson={};
+  items.forEach(g=>{
+    const key=g.lessonNum;
+    if(!byLesson[key]) byLesson[key]={label:g.lessonLabel,items:[]};
+    byLesson[key].items.push(g);
+  });
+  let html='';
+  Object.keys(byLesson).sort((a,b)=>a-b).forEach(k=>{
+    const group=byLesson[k];
+    html+=`<div class="gr-lesson"><div class="gr-lesson-head">Урок ${k} · ${group.label}<span class="gr-lv">${group.items[0].level}</span></div>`;
+    group.items.forEach((g,idx)=>{
+      const cardId='grc_'+k+'_'+idx;
+      const exSay=g.examples&&g.examples[0]?g.examples[0]:g.point||'';
+      html+=`<div class="gr-card" id="${cardId}">
+        <div class="gr-card-head" onclick="toggleGrCard('${cardId}')">
+          <span class="gr-card-point">${g.point||''}</span>
+          <span class="gr-card-arrow">▶</span>
+        </div>
+        <div class="gr-card-body">
+          <div class="gr-section-label">📖 Значение</div>
+          <div class="gr-exp">${g.explanation||''}</div>
+          ${(g.examples||[]).length?`<div class="gr-section-label">例 Примеры</div><ul class="gr-examples">${g.examples.map(e=>`<li>${e}</li>`).join('')}</ul>`:''}
+          <button class="gr-listen" onclick="sayNow('${sayRef(exSay)}')">▶ 聞く Слушать</button>
+        </div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  body.innerHTML=html;
+}
+
+function toggleGrCard(id){
+  const card=document.getElementById(id);
+  if(card)card.classList.toggle('open');
+}
+
+function toggleDark(){
+  const s=C.getSettings();
+  s.darkMode=!s.darkMode;
+  C.setSettings(s);
+  document.body.classList.toggle('dark',s.darkMode);
+  document.getElementById('gr-dark').textContent=s.darkMode?'☀️':'🌙';
+}
+
+// Init
+C.loadContent(()=>{
+  allGrammar=collectGrammar();
+  renderChips();
+  filterGrammar();
+  // Apply dark mode
+  const s=C.getSettings();
+  if(s.darkMode){ document.body.classList.add('dark'); document.getElementById('gr-dark').textContent='☀️'; }
+});
+// Search input listener
+document.getElementById('gr-input').addEventListener('input',filterGrammar);
+// Register service worker
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>

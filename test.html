@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Японский челлендж — Тест</title>
+<link rel="icon" href="/favicon.png">
+<style>
+:root{
+  --bg:#f5f5f7;--card:#fff;--ink:#1a1a2e;--ink2:#555;--ink3:#999;
+  --border:#e0e0e0;--shadow:0 2px 8px rgba(0,0,0,.06);
+  --green:#2bb673;--blue:#2979ff;--blue-soft:#e3f2fd;
+  --gold:#ffb300;--gold-soft:#fff8e1;--accent:#e53935;
+  --spring:cubic-bezier(.34,1.56,.64,1);
+}
+body.dark{
+  --bg:#0d0d1a;--card:#1a1a2e;--ink:#f5f5f7;--ink2:#aaa;--ink3:#666;
+  --border:#2a2a3e;--shadow:0 2px 8px rgba(0,0,0,.2);
+  --blue-soft:#1a2332;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;transition:background .3s}
+.container{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 1rem) 1rem 2rem}
+
+/* Header */
+.test-header{text-align:center;margin-bottom:1.5rem}
+.test-header h1{font-size:24px;font-weight:900;margin-bottom:4px}
+.test-header p{font-size:14px;color:var(--ink3);font-weight:600}
+
+/* Timer */
+.timer-bar{position:sticky;top:0;z-index:10;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:10px 16px;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow)}
+.timer-display{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
+.timer-display.warning{color:var(--gold)}
+.timer-display.danger{color:var(--accent);animation:tpulse 1s ease infinite}
+@keyframes tpulse{0%,100%{opacity:1}50%{opacity:.5}}
+.timer-progress{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;margin:0 14px}
+.timer-progress .f{height:100%;background:var(--green);border-radius:3px;transition:width 1s linear,background .3s}
+.timer-progress .f.warning{background:var(--gold)}
+.timer-progress .f.danger{background:var(--accent)}
+
+/* Question counter */
+.q-counter{font-size:13px;font-weight:800;color:var(--ink3)}
+
+/* Start screen */
+.start-screen{text-align:center;padding:2rem 1rem}
+.start-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem 1.5rem;box-shadow:var(--shadow)}
+.start-card .sc-icon{font-size:56px;margin-bottom:12px}
+.start-card h2{font-size:20px;font-weight:900;margin-bottom:8px}
+.start-card .sc-info{font-size:14px;color:var(--ink2);font-weight:600;line-height:1.6;margin-bottom:1.2rem}
+.start-card .sc-stats{display:flex;justify-content:center;gap:20px;margin-bottom:1.2rem}
+.start-card .sc-stats span{display:flex;flex-direction:column;align-items:center}
+.start-card .sc-stats .v{font-size:24px;font-weight:900;color:var(--blue)}
+.start-card .sc-stats .l{font-size:11px;color:var(--ink3);font-weight:700;text-transform:uppercase}
+.start-btn{background:linear-gradient(135deg,var(--blue),#7c4dff);color:#fff;border:none;border-radius:14px;padding:14px 32px;font-size:16px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(41,121,255,.3);transition:transform .15s}
+.start-btn:active{transform:scale(.97)}
+
+/* Question card */
+.q-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem;box-shadow:var(--shadow);margin-bottom:1rem;animation:slideUp .3s var(--spring) both}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.q-dim-tag{display:inline-block;font-size:10px;font-weight:900;padding:3px 10px;border-radius:20px;text-transform:uppercase;margin-bottom:10px}
+.q-dim-tag.vocab{background:#e3f2fd;color:#1565c0}
+.q-dim-tag.grammar{background:#f3e5f5;color:#7b1fa2}
+.q-dim-tag.kanji{background:#e8f5e9;color:#2e7d32}
+.q-text{font-size:18px;font-weight:800;line-height:1.5;margin-bottom:1.2rem}
+.q-options{display:flex;flex-direction:column;gap:8px}
+.q-option{background:var(--bg);border:2px solid var(--border);border-radius:14px;padding:14px 16px;font-size:15px;font-weight:700;cursor:pointer;transition:all .15s;font-family:inherit;text-align:left;color:var(--ink)}
+.q-option:hover{border-color:var(--blue)}
+.q-option:active{transform:scale(.98)}
+.q-option.selected{border-color:var(--blue);background:var(--blue-soft)}
+.q-option.correct{border-color:var(--green);background:#e8f5e9}
+.q-option.wrong{border-color:var(--accent);background:#fce4ec}
+.q-option.disabled{pointer-events:none;opacity:.7}
+
+/* Explanation */
+.q-explanation{background:var(--gold-soft);border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin-top:12px;font-size:13px;font-weight:600;line-height:1.5;display:none}
+.q-explanation.show{display:block;animation:slideUp .2s ease}
+
+/* Navigation */
+.q-nav{display:flex;gap:8px;margin-top:14px}
+.q-nav button{flex:1;padding:10px;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.q-nav .prev{background:var(--bg);color:var(--ink2);border:1px solid var(--border)}
+.q-nav .next{background:var(--blue);color:#fff}
+.q-nav .next:disabled{opacity:.4;cursor:not-allowed}
+
+/* Results screen */
+.results-screen{text-align:center;padding:1.5rem 1rem}
+.results-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem 1.5rem;box-shadow:var(--shadow)}
+.results-card .rc-icon{font-size:56px;margin-bottom:12px}
+.results-card h2{font-size:22px;font-weight:900;margin-bottom:6px}
+.results-card .rc-score{font-size:36px;font-weight:900;color:var(--blue);margin:14px 0}
+.results-card .rc-time{font-size:14px;color:var(--ink3);font-weight:700;margin-bottom:1rem}
+.results-card .rc-breakdown{display:flex;justify-content:center;gap:16px;margin-bottom:1.2rem;flex-wrap:wrap}
+.results-card .rc-breakdown span{display:flex;flex-direction:column;align-items:center}
+.results-card .rc-breakdown .v{font-size:20px;font-weight:900}
+.results-card .rc-breakdown .l{font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase}
+.results-card .rc-review{text-align:left;margin-top:1rem}
+.results-card .rc-review h3{font-size:14px;font-weight:900;margin-bottom:8px}
+.review-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:6px;font-size:13px;font-weight:600}
+.review-item .ri-q{font-weight:800;margin-bottom:3px}
+.review-item .ri-a{color:var(--green);font-weight:800}
+.review-item .ri-w{color:var(--accent);font-weight:800;text-decoration:line-through}
+.results-card .rc-share{margin-top:1rem;font-size:12px;color:var(--ink3);font-weight:600}
+
+/* Empty state */
+.empty-state{text-align:center;padding:3rem 1rem}
+.empty-state .es-icon{font-size:48px;margin-bottom:12px}
+.empty-state h2{font-size:18px;font-weight:900;margin-bottom:6px}
+.empty-state p{font-size:14px;color:var(--ink3);font-weight:600}
+
+/* Progress dots */
+.progress-dots{display:flex;gap:4px;justify-content:center;margin-bottom:1rem;flex-wrap:wrap}
+.pd{width:8px;height:8px;border-radius:50%;background:var(--border);transition:all .2s}
+.pd.answered{background:var(--green)}
+.pd.current{background:var(--blue);transform:scale(1.4)}
+.pd.wrong{background:var(--accent)}
+</style>
+</head>
+<body>
+<div class="container" id="app" role="main">
+  <div class="test-header">
+    <h1 id="test-title">💪 Проверка знаний</h1>
+    <p id="test-subtitle">Преврати свои слабые места в сильные!</p>
+  </div>
+  <div id="content" aria-live="polite"></div>
+</div>
+
+<script>
+(function(){
+  // Auto-apply dark mode from main app settings
+  try{const s=JSON.parse(localStorage.getItem('mnn_settings')||'{}');if(s.darkMode)document.body.classList.add('dark')}catch(e){}
+  const app=document.getElementById('content');
+  let testData=null;
+  let currentQ=0;
+  let answers=[];
+  let startTime=0;
+  let endTime=0;
+  let timerInterval=null;
+  let testGuard=false;
+
+  // Parse test data from URL hash
+  function loadTest(){
+    const hash=location.hash.slice(1);
+    if(!hash){
+      app.innerHTML='<div class="empty-state"><div class="es-icon">🔗</div><h2>Тест не найден</h2><p>Попросите преподавателя создать ссылку на тест из админ-панели.</p></div>';
+      return false;
+    }
+    try{
+      // Try short ID format first (localStorage)
+      if(hash.length<=12 && !hash.startsWith('ey')){
+        const stored=localStorage.getItem('mnn_test_'+hash);
+        if(stored){
+          testData=JSON.parse(stored);
+          testData.questions=testData.q||testData.questions;
+          if(!testData.questions||!testData.questions.length)throw new Error('No questions');
+          applyCustomTitle();
+          return true;
+        }
+      }
+      // Fall back to old base64 format
+      const decoded=decodeURIComponent(atob(hash));
+      testData=JSON.parse(decoded);
+      testData.questions=testData.q||testData.questions;
+      if(!testData.questions||!testData.questions.length)throw new Error('No questions');
+      applyCustomTitle();
+      return true;
+    }catch(e){
+      app.innerHTML='<div class="empty-state"><div class="es-icon">⚠️</div><h2>Тест не найден</h2><p>Ссылка на тест могла истечь или была создана на другом устройстве. Попросите преподавателя новую ссылку.</p></div>';
+      return false;
+    }
+  }
+
+  function applyCustomTitle(){
+    const label=testData.label||'';
+    const isCustom=label && label!=='Тест на слабые места';
+    if(isCustom){
+      const titleEl=document.getElementById('test-title');
+      const subEl=document.getElementById('test-subtitle');
+      if(titleEl) titleEl.textContent='🎯 Японский челлендж';
+      if(subEl) subEl.textContent='Покажи, что знаешь — у тебя получится!';
+    } else if(!label){
+      // Default weakness test — use motivating title
+      const titleEl=document.getElementById('test-title');
+      const subEl=document.getElementById('test-subtitle');
+      if(titleEl) titleEl.textContent='💪 Проверка знаний';
+      if(subEl) subEl.textContent='Преврати свои слабые места в сильные!';
+    }
+  }
+
+  function renderStart(){
+    const q=testData.questions;
+    const mins=Math.max(5,Math.ceil(q.length*1.5));
+    const label=testData.label||'';
+    const isCustom=label && label!=='Тест на слабые места';
+    const title=isCustom?'🎯 Японский челлендж':'💪 Проверка знаний';
+    const subtitle=isCustom
+      ?'Ты усердно занималась — теперь покажи, что знаешь! Каждый вопрос — шанс доказать свой прогресс. 頑張って！'
+      :'Преврати свои слабые места в сильные! Каждая ошибка здесь делает тебя сильнее. できる！';
+    app.innerHTML=`
+      <div class="start-screen">
+        <div class="start-card">
+          <div class="sc-icon">${isCustom?'🎯':'💪'}</div>
+          <h2>${title}</h2>
+          <div class="sc-info">${subtitle}</div>
+          <div class="sc-stats">
+            <span><span class="v">${q.length}</span><span class="l">Вопросов</span></span>
+            <span><span class="v">${mins}</span><span class="l">Минут</span></span>
+            <span><span class="v">${testData.w||testData.weakCount||'—'}</span><span class="l">Слабых мест</span></span>
+          </div>
+          <button class="start-btn" onclick="startTest()">Начать тест →</button>
+        </div>
+      </div>`;
+  }
+
+  function startTest(){
+    currentQ=0;
+    answers=new Array(testData.questions.length).fill(null);
+    startTime=Date.now();
+    // Remove any old timer bar from a previous attempt
+    const oldBar=document.querySelector('.timer-bar'); if(oldBar) oldBar.remove();
+    if(timerInterval){ clearInterval(timerInterval); timerInterval=null; }
+    // Create timer bar BEFORE renderQuestion (renderQuestion updates q-counter)
+    startTimer();
+    renderQuestion();
+  }
+  window.startTest=startTest;
+
+  function startTimer(){
+    const q=testData.questions;
+    const totalSecs=Math.max(300,Math.ceil(q.length*90));
+    const bar=document.createElement('div');
+    bar.className='timer-bar';
+    bar.innerHTML=`
+      <span class="timer-display" id="timer">⏱ ${formatTime(totalSecs)}</span>
+      <div class="timer-progress"><div class="f" id="timer-f" style="width:100%"></div></div>
+      <span class="q-counter" id="q-counter">0/${q.length}</span>`;
+    document.querySelector('.container').insertBefore(bar,document.querySelector('.test-header').nextSibling);
+
+    let remaining=totalSecs;
+    timerInterval=setInterval(()=>{
+      remaining--;
+      const t=document.getElementById('timer');
+      const f=document.getElementById('timer-f');
+      if(!t||!f)return;
+      t.textContent='⏱ '+formatTime(remaining);
+      const pct=remaining/totalSecs*100;
+      f.style.width=pct+'%';
+      if(remaining<=30){t.classList.add('danger');f.classList.add('danger')}
+      else if(remaining<=60){t.classList.add('warning');f.classList.add('warning')}
+      if(remaining<=0){
+        clearInterval(timerInterval);
+        submitTest();
+      }
+    },1000);
+  }
+
+  function formatTime(secs){
+    const m=Math.floor(secs/60),s=secs%60;
+    return m+':'+(s<10?'0':'')+s;
+  }
+
+  function renderQuestion(){
+    const q=testData.questions[currentQ];
+    const answeredCount=answers.filter(a=>a!==null).length;
+    const qcEl=document.getElementById('q-counter'); if(qcEl) qcEl.textContent=(currentQ+1)+'/'+testData.questions.length;
+
+    // Progress dots
+    let dots='';
+    for(let i=0;i<testData.questions.length;i++){
+      let cls='';
+      if(i===currentQ)cls='current';
+      else if(answers[i]!==null)cls=answers[i]===testData.questions[i].c?'answered':'wrong';
+      dots+=`<div class="pd ${cls}"></div>`;
+    }
+
+    const answered=answers[currentQ]!==null;
+    const optsHTML=q.o.map((opt,i)=>{
+      let cls='q-option';
+      if(answered){
+        cls+=' disabled';
+        if(i===q.c)cls+=' correct';
+        if(i===answers[currentQ]&&i!==q.c)cls+=' wrong';
+      }
+      return `<button class="${cls}" onclick="selectAnswer(${i})"${answered?' disabled':''}>${opt}</button>`;
+    }).join('');
+
+    const expHTML=answered?`<div class="q-explanation show"><b>Правильный ответ:</b> ${q.o[q.c]}</div>`:'';
+
+    app.innerHTML=`
+      <div class="progress-dots">${dots}</div>
+      <div class="q-card">
+        <span class="q-dim-tag ${q.d||q.dim||'vocab'}">${q.d||q.dim||'vocab'}</span>
+        <div class="q-text">${q.q}</div>
+        <div class="q-options">${optsHTML}</div>
+        ${expHTML}
+        <div class="q-nav">
+          ${currentQ>0?'<button class="prev" onclick="prevQ()">← Назад</button>':''}
+          ${currentQ<testData.questions.length-1?'<button class="next" onclick="nextQ()"'+(answered?'':' disabled')+'>Далее →</button>':'<button class="next" onclick="submitTest()"'+(answered?'':' disabled')+'>Завершить ✓</button>'}
+        </div>
+      </div>`;
+    // Click guard: prevent accidental selection for 300ms after render
+    testGuard=true;
+    setTimeout(function(){ testGuard=false; },300);
+  }
+
+  function selectAnswer(i){
+    if(testGuard)return;
+    if(answers[currentQ]!==null)return;
+    answers[currentQ]=i;
+    renderQuestion();
+  }
+  window.selectAnswer=selectAnswer;
+
+  function prevQ(){ if(currentQ>0){currentQ--;renderQuestion()} }
+  window.prevQ=prevQ;
+  function nextQ(){ if(answers[currentQ]===null)return; if(currentQ<testData.questions.length-1){currentQ++;renderQuestion()} }
+  window.nextQ=nextQ;
+
+  function submitTest(){
+    if(timerInterval)clearInterval(timerInterval);
+    endTime=Date.now();
+    const tb=document.querySelector('.timer-bar');
+    if(tb)tb.remove();
+
+    const q=testData.questions;
+    let correct=0;
+    const review=[];
+    const weakIds=[];
+    q.forEach((question,i)=>{
+      const isCorrect=answers[i]===question.c;
+      if(isCorrect)correct++;
+      else{ review.push({q:question.q,correct:question.o[question.c],wrong:answers[i]!=null?question.o[answers[i]]:null,dim:question.d||question.dim}); if(question.id)weakIds.push(question.id); }
+    });
+    const pct=Math.round(correct/q.length*100);
+    const elapsed=Math.round((endTime-startTime)/1000);
+
+    // Report results to server
+    try{fetch('/api/results',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'test',secret:testData.s||'begench1994garahan',name:'Mahym',correct,total:q.length,pct,time:elapsed,weakIds:weakIds.slice(0,10)})}).catch(()=>{})}catch(e){}
+    const mins=Math.floor(elapsed/60),secs=elapsed%60;
+    const timeStr=mins+'m '+(secs<10?'0':'')+secs+'s';
+
+    let icon='🎉',title='Отлично!';
+    if(pct>=80){icon='🎉';title='Великолепно!'}
+    else if(pct>=60){icon='👍';title='Хорошая работа!'}
+    else if(pct>=40){icon='💪';title='Продолжай практиковаться!'}
+    else{icon='📚';title='Нужно больше занятий'}
+
+    const reviewHTML=review.length?`<div class="rc-review">
+      <h3>Повторение (${review.length} к изучению)</h3>
+      ${review.map(r=>`<div class="review-item">
+        <div class="ri-q">${r.dim?`<span class="q-dim-tag ${r.dim}" style="font-size:9px;padding:2px 6px">${r.dim}</span> `:''}${r.q}</div>
+        ${r.wrong?`<div class="ri-w">Твой ответ: ${r.wrong}</div>`:'<div class="ri-w" style="text-decoration:none;color:var(--ink3)">Нет ответа</div>'}
+        <div class="ri-a">Правильно: ${r.correct}</div>
+      </div>`).join('')}
+    </div>`:'<div style="font-size:14px;font-weight:800;color:var(--green);margin-top:1rem">🎉 Идеальный результат — всё правильно!</div>';
+
+    app.innerHTML=`
+      <div class="results-screen">
+        <div class="results-card">
+          <div class="rc-icon">${icon}</div>
+          <h2>${title}</h2>
+          <div class="rc-score">${correct}/${q.length} · ${pct}%</div>
+          <div class="rc-time">Завершено за ${timeStr}</div>
+          <div class="rc-breakdown">
+            <span><span class="v" style="color:var(--green)">${correct}</span><span class="l">Правильно</span></span>
+            <span><span class="v" style="color:var(--accent)">${q.length-correct}</span><span class="l">Неправильно</span></span>
+            <span><span class="v">${pct}%</span><span class="l">Результат</span></span>
+          </div>
+          ${reviewHTML}
+          <div class="rc-share">Поделись результатами с преподавателем для персональных рекомендаций.</div>
+          <button class="start-btn" style="margin-top:1.2rem" onclick="location.reload()">Пройти заново</button>
+        </div>
+      </div>`;
+  }
+  window.submitTest=submitTest;
+
+  // Init
+  if(loadTest()){
+    renderStart();
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1c1c2e">
+<title>🗺️ Мой путь</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0ede8;--card:#fff;--ink:#1c1c2e;--ink2:#52526e;--ink3:#9898b0;--red:#ff4b4b;--green:#00c853;--blue:#2979ff;--gold:#ffb300;--purple:#8e24aa;--border:#e4e0d8;--shadow:0 4px 12px rgba(28,28,46,.06);--r:20px;--spring:cubic-bezier(0.34,1.56,0.64,1)}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter','Noto Sans JP',sans-serif;background:var(--bg);color:var(--ink);font-size:15px;-webkit-user-select:none;user-select:none;transition:background .3s}
+body.dark{--bg:#1a1a2e;--card:#252542;--ink:#e8e8f0;--ink2:#a0a0c0;--ink3:#6e6e90;--border:#353560;--shadow:0 4px 12px rgba(0,0,0,.3)}
+.wrap{max-width:640px;margin:0 auto;padding:0 1rem 5rem}
+.top{display:flex;align-items:center;gap:14px;padding:calc(env(safe-area-inset-top) + 1.3rem) 0 .5rem}
+.back{text-decoration:none;background:var(--card);border:1px solid var(--border);color:var(--ink2);font-weight:800;padding:9px 16px;border-radius:24px;font-size:14px}
+.htitle{font-size:20px;font-weight:900}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.4rem;box-shadow:var(--shadow);margin-bottom:1rem;animation:pop .5s var(--spring) both}
+@keyframes pop{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.ctitle{font-size:16px;font-weight:900;margin-bottom:4px}
+
+/* hero */
+.hero{background:linear-gradient(160deg,#1c1c2e 0%,#252548 60%,#1d2a5a 100%),radial-gradient(circle at 20% 80%,rgba(41,121,255,.08),transparent 50%),radial-gradient(circle at 80% 20%,rgba(142,36,170,.06),transparent 50%);background-size:100% 100%,200% 200%,200% 200%;color:#fff;border-radius:var(--r);padding:1.6rem;margin-bottom:1rem;position:relative;overflow:hidden;animation:meshShift 12s ease-in-out infinite}
+@keyframes meshShift{0%,100%{background-position:0% 50%,100% 50%}50%{background-position:100% 50%,0% 50%}}
+.hero::after{content:'道';position:absolute;right:-12px;top:-24px;font-family:'Noto Sans JP';font-size:150px;font-weight:900;color:rgba(255,255,255,.05)}
+.hero .num{font-size:50px;font-weight:900;letter-spacing:-.03em}
+.hero .lbl{font-size:12px;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.hero .ret{font-size:13px;color:#69f0ae;font-weight:800;margin-top:6px}
+
+/* ladder */
+.rung{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px dashed var(--border)}
+.rung:last-child{border-bottom:none}
+.rung .dot{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg)}
+.rung.cur .dot{background:linear-gradient(135deg,var(--gold),var(--red));box-shadow:0 4px 12px rgba(255,75,75,.3)}
+.rung.done .dot{background:var(--green)}
+.rung .name{font-weight:800;font-size:15px}
+.rung.locked .name{color:var(--ink3)}
+.rung .sub{font-size:12px;color:var(--ink3);font-weight:600}
+.rung.cur .name{color:var(--ink)}
+
+/* projection */
+.proj-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--border)}
+.proj-row:last-child{border-bottom:none}
+.proj-goal{font-weight:800;font-size:14px}
+.proj-val{font-weight:900;font-size:15px;color:var(--blue)}
+.proj-val.ready{color:var(--green)}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1rem .4rem;text-align:center;box-shadow:var(--shadow)}
+.stat .v{font-size:24px;font-weight:900}
+.stat .l{font-size:10px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+
+/* heatmap */
+.hm{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;overflow-x:auto;padding-bottom:4px}
+.hm i{width:13px;height:13px;border-radius:3px;background:var(--bg)}
+
+/* skill bars */
+.sk{margin-bottom:13px}.sk:last-child{margin-bottom:0}
+.sk-top{display:flex;justify-content:space-between;font-weight:800;font-size:14px;margin-bottom:5px}
+.sk-track{height:9px;background:var(--bg);border-radius:5px;overflow:hidden}
+.sk-fill{height:100%;border-radius:5px;transition:width 1s var(--spring)}
+
+/* modules */
+.mods{display:grid;grid-template-columns:1fr 1fr;gap:.7rem}
+.mod{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1rem;box-shadow:var(--shadow)}
+.mod .mn{font-weight:800;font-size:14px;font-family:'Noto Sans JP';margin-bottom:8px}
+.mod .mtrack{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:5px}
+.mod .mfill{height:100%;background:var(--blue);border-radius:4px}
+.mod .mpct{font-size:12px;font-weight:800;color:var(--ink3)}
+
+/* milestones */
+.ms{display:flex;gap:12px;padding:10px 0;border-bottom:1px dashed var(--border)}
+.ms:last-child{border-bottom:none}
+.ms .ic{font-size:20px}
+.ms .mt{font-weight:800;font-size:14px}
+.ms .mt.done{color:var(--green)}
+.ms .msub{font-size:12px;color:var(--ink3)}
+
+/* lesson track L25-L50 */
+.track-wrap{overflow-x:auto;padding:1rem 0 .5rem}
+.track-row{display:flex;align-items:center;min-width:max-content;padding:0 .5rem}
+.track-node{display:flex;flex-direction:column;align-items:center;position:relative;z-index:1}
+.track-circle{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;border:2.5px solid var(--border);background:var(--bg);color:var(--ink3);transition:all .3s}
+.track-node.done .track-circle{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 3px 10px rgba(41,121,255,.35)}
+.track-node.current .track-circle{background:#fff;border-color:var(--blue);color:var(--blue);box-shadow:0 0 0 4px rgba(41,121,255,.18);animation:pulse-node 2s infinite}
+@keyframes pulse-node{0%,100%{box-shadow:0 0 0 4px rgba(41,121,255,.18)}50%{box-shadow:0 0 0 7px rgba(41,121,255,.08)}}
+.track-label{font-size:9px;font-weight:700;color:var(--ink3);margin-top:5px;text-align:center;max-width:44px;line-height:1.2}
+.track-node.done .track-label{color:var(--blue)}
+.track-node.current .track-label{color:var(--blue);font-weight:900}
+.track-line{height:3px;width:28px;background:var(--border);flex-shrink:0;position:relative;top:-10px}
+.track-line.done{background:var(--blue)}
+.track-progress-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:10px}
+.track-progress-fill{height:100%;background:var(--blue);border-radius:3px;transition:width 1s var(--spring)}
+.track-legend{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.track-legend span{font-size:11px;font-weight:700;color:var(--ink3);display:flex;align-items:center;gap:5px}
+.track-legend .dot{width:10px;height:10px;border-radius:50%}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a class="back" href="/">← Назад</a><div class="htitle">🗺️ Мой путь</div></div>
+
+  <div class="hero">
+    <div class="lbl">未来の自分への道 — Путь к будущему себе</div>
+    <div style="display:flex;align-items:flex-end;gap:12px;margin-top:10px"><div class="num" id="overall">0%</div><div style="padding-bottom:8px"><div class="lbl">Общее освоение N4</div><div class="ret" id="ret">🧬 удержание —</div></div></div>
+  </div>
+
+  <div class="eyebrow" style="padding-left:4px">段位 — Твоя лестница рангов</div>
+  <div class="card" id="ladder"></div>
+
+  <div class="card">
+    <div class="eyebrow">⏳ В твоём текущем темпе</div>
+    <div id="projection"></div>
+    <div style="font-size:11px;color:var(--ink3);margin-top:10px;font-weight:600">Прогноз основан на твоём недавнем ежедневном росте. Продолжай заниматься — дата приближается с каждым активным днём.</div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <div class="ctitle">Активность занятий</div>
+    <div class="eyebrow" style="margin:2px 0 12px">Последние 18 недель</div>
+    <div class="hm" id="heatmap"></div>
+  </div>
+
+  <div class="card">
+    <div class="ctitle" style="margin-bottom:12px">Освоение навыков — 5 столпов</div>
+    <div id="skills"></div>
+  </div>
+
+  <div class="eyebrow" style="padding-left:4px">📍 Маршрут уроков — L25 до L50</div>
+  <div class="card">
+    <div class="track-wrap"><div class="track-row" id="lesson-track"></div></div>
+    <div class="track-progress-bar"><div class="track-progress-fill" id="track-fill"></div></div>
+    <div class="track-legend">
+      <span><div class="dot" style="background:var(--blue)"></div>Готово</span>
+      <span><div class="dot" style="background:#fff;border:2.5px solid var(--blue);box-sizing:border-box"></div>Текущий</span>
+      <span><div class="dot" style="background:var(--border)"></div>Закрыто</span>
+    </div>
+  </div>
+
+  <div class="eyebrow" style="padding-left:4px">テーマ — Тематические модули</div>
+  <div class="mods" id="modules"></div>
+
+  <div class="card" style="margin-top:1rem">
+    <div class="ctitle" style="margin-bottom:8px">Вехи</div>
+    <div id="milestones"></div>
+  </div>
+</div>
+
+<script src="/seed-data.js"></script>
+<script src="/memory-engine.js"></script>
+<script src="/Coach.js"></script>
+<script src="/core.js"></script>
+<script>
+const C=window.Core;
+const DIM_META={vocab:{label:'🧠 Словарь',color:'var(--blue)'},grammar:{label:'✍ Грамматика',color:'var(--green)'},reading:{label:'📖 Чтение',color:'var(--gold)'},listening:{label:'🎧 Аудирование',color:'var(--purple)'},kanji:{label:'🈶 Кандзи',color:'var(--red)'}};
+
+function render(){
+  const overall=C.overallMastery();
+  document.getElementById('overall').textContent=overall+'%';
+  const ret=C.retention();document.getElementById('ret').textContent='🧬 удержание '+(ret===null?'—':ret+'%');
+
+  // ladder
+  const rungs=[
+    {n:'Выпускник N5',ic:'✅',state:'done',sub:'База завершена'},
+    {n:'Подмастерье N4',ic:'🔥',state:'cur',sub:overall+'% освоено · Этап 1: июл→сен 2026'},
+    {n:'Исследователь N3',ic:'🧭',state:'locked',sub:'Этап 2: окт→дек 2026 · JLPT N3 6 дек'},
+    {n:'Ученик N2',ic:'📚',state:'locked',sub:'Этап 3: янв→май 2027 · Целевой уровень'},
+    {n:'Мастер тестов',ic:'🎯',state:'locked',sub:'Этап 4: июн→июл 2027 · Пробный тест 15 июн'},
+    {n:'Мастер N1',ic:'👑',state:'locked',sub:'Дальше — вершина'}
+  ];
+  document.getElementById('ladder').innerHTML=rungs.map(r=>`<div class="rung ${r.state}"><div class="dot">${r.ic}</div><div><div class="name">${r.n}</div><div class="sub">${r.sub}</div></div></div>`).join('');
+
+  // projection
+  const targets=[{g:'🎯 Готова к тесту (80%)',t:80},{g:'🌱 Готов к N3 (90%)',t:90},{g:'🌳 Готов к N2 (95%)',t:95},{g:'👑 Готов к N1 (99%)',t:99}];
+  document.getElementById('projection').innerHTML=targets.map(x=>{
+    const d=C.daysToReady(x.t);
+    const txt=d<=0?'Готов ✓':(d>900?'Продолжай':'~'+d+' дней');
+    return `<div class="proj-row"><span class="proj-goal">${x.g}</span><span class="proj-val ${d<=0?'ready':''}">${txt}</span></div>`;
+  }).join('') + `
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg);border-radius:12px;font-size:12px;font-weight:600;color:var(--ink2);line-height:1.6">
+      <div style="font-weight:900;color:var(--ink);margin-bottom:6px">📅 График тестов</div>
+      <div>📘 <b>JLPT N3</b> — 6 дек 2026 (воскресенье)</div>
+      <div>🎯 <b>Пробный тест</b> — 15 июн 2027</div>
+      <div>📕 <b>JLPT N2</b> — 4 июл 2027 (воскресенье)</div>
+      <div style="margin-top:6px;color:var(--ink3)">Итого: ~369 дней от сегодня · 2 часа/день занятий</div>
+    </div>`;
+
+  // stats
+  const log=C.activityLog();const activeDays=Object.keys(log).length;
+  const srs=C.getSRS();const learned=Object.values(srs).filter(s=>s.reps>0).length;
+  const mextDone=[C.DB.get('exam_pass_A'),C.DB.get('exam_pass_B'),C.DB.get('exam_pass_C')].filter(Boolean).length;
+  const mextPct=Math.round(mextDone/3*100);
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><div class="v" style="color:var(--gold)">${C.getMomentum().value}</div><div class="l">⚡ Импульс</div></div>
+    <div class="stat"><div class="v">${activeDays}</div><div class="l">Активных дней</div></div>
+    <div class="stat"><div class="v">${learned}</div><div class="l">Изучено элементов</div></div>
+    <div class="stat"><div class="v">${ret===null?'—':ret}</div><div class="l">Удержание</div></div>`;
+
+  // heatmap (last 126 days)
+  const hm=document.getElementById('heatmap');hm.innerHTML='';
+  const today=new Date();const start=new Date(today);start.setDate(start.getDate()-125);
+  // pad to start on Sunday
+  start.setDate(start.getDate()-start.getDay());
+  for(let d=new Date(start);d<=today;d.setDate(d.getDate()+1)){
+    const k=C.dateKey(d);const e=log[k];const cell=document.createElement('i');
+    if(e){const items=e.items||0;const lvl=items>=15?'#00701a':items>=8?'#00a040':items>=3?'#69f0ae':'#b9f6ca';cell.style.background=lvl}
+    hm.appendChild(cell);
+  }
+
+  // skills
+  document.getElementById('skills').innerHTML=C.DIMS.map(d=>{const m=C.dimMastery(d);const meta=DIM_META[d];return `<div class="sk"><div class="sk-top"><span>${meta.label}</span><span>${m===null?'—':m+'%'}</span></div><div class="sk-track"><div class="sk-fill" style="width:${m||0}%;background:${meta.color}"></div></div></div>`}).join('');
+
+  // lesson track L25-L50
+  (function(){
+    const packs=C.PACKS();
+    const packNums=new Set(packs.map(p=>p.lessonNum));
+    const srs=C.getSRS();
+    function lessonMastery(lessonNum){
+      const p=packs.find(x=>x.lessonNum===lessonNum);
+      if(!p)return null;
+      const ids=[];
+      (p.vocabulary||[]).forEach(v=>ids.push(v.id));
+      (p.grammar||[]).forEach(g=>ids.push(g.id));
+      (p.kanji||[]).forEach(k=>ids.push(k.id));
+      if(!ids.length)return null;
+      const avg=ids.reduce((s,id)=>{const st=srs[id];return s+(st&&st.reps>0?Math.min(1,st.interval/30):0);},0)/ids.length;
+      return Math.round(avg*100);
+    }
+    const trackEl=document.getElementById('lesson-track');
+    let html='';
+    let doneCount=0;
+    let firstCurrent=-1;
+    for(let n=25;n<=50;n++){
+      const hasPack=packNums.has(n);
+      const m=hasPack?lessonMastery(n):null;
+      const isDone=m!==null&&m>=60;
+      const isCurrent=!isDone&&hasPack&&firstCurrent===-1;
+      if(isCurrent)firstCurrent=n;
+      if(isDone)doneCount++;
+      const cls=isDone?'done':isCurrent?'current':'';
+      const icon=isDone?'✓':n;
+      if(n>25)html+=`<div class="track-line${isDone||(!isDone&&n-1>=25&&packNums.has(n-1)&&lessonMastery(n-1)>=60)?'':''} ${n<=firstCurrent&&firstCurrent>-1||isDone?'done':''}"></div>`;
+      html+=`<div class="track-node ${cls}"><div class="track-circle">${icon}</div><div class="track-label">L${n}</div></div>`;
+    }
+    trackEl.innerHTML=html;
+    // fix line colors — line between n-1 and n is blue only if n-1 is done
+    const circles=trackEl.querySelectorAll('.track-node');
+    const lines=trackEl.querySelectorAll('.track-line');
+    lines.forEach((line,i)=>{
+      const prevNode=circles[i];
+      if(prevNode&&prevNode.classList.contains('done'))line.classList.add('done');
+      else line.classList.remove('done');
+    });
+    const pct=Math.round(doneCount/26*100);
+    document.getElementById('track-fill').style.width=pct+'%';
+  })();
+
+  // modules
+  const packs=C.PACKS();const byMod={};
+  packs.forEach(p=>{const key=p.module;byMod[key]=byMod[key]||{label:p.moduleLabel||key,ids:[]};
+    ['vocabulary','grammar','kanji'].forEach(t=>(p[t]||[]).forEach(i=>byMod[key].ids.push(i.id)));
+    // reading/listening are rated at the question level, so count those ids
+    if(p.reading)(p.reading.questions||[]).forEach(rq=>byMod[key].ids.push(rq.id));
+    (p.listening||[]).forEach(l=>byMod[key].ids.push('lq_'+l.id));
+  });
+  document.getElementById('modules').innerHTML=Object.values(byMod).filter(m=>m.label&&m.label!=='undefined').map(m=>{
+    const avg=m.ids.length?Math.round(m.ids.reduce((s,id)=>s+C.itemMastery(id),0)/m.ids.length*100):0;
+    return `<div class="mod"><div class="mn">${m.label}</div><div class="mtrack"><div class="mfill" style="width:${avg}%"></div></div><div class="mpct">${avg}% · ${m.ids.length} элементов</div></div>`;
+  }).join('');
+
+  // milestones
+  const learnedCount=learned;
+  const mss=[
+    {ic:'🌱',t:'Первые шаги',sub:'Изучи первые 5 элементов',done:learnedCount>=5},
+    {ic:'📖',t:'Первая прочитанная история',sub:'Заверши текст для чтения',done:Object.keys(srs).some(id=>(C.BY_ID[id]||{}).dim==='reading'&&srs[id].reps>0)},
+    {ic:'🔥',t:'Импульс 30',sub:'Достигни 30 импульса',done:C.getMomentum().value>=30},
+    {ic:'📘',t:'N4 80% освоение',sub:'Этап 1 завершён · к 30 сен 2026',done:overall>=80},
+    {ic:'📗',t:'Экзамен JLPT N3',sub:'Сдача 6 дек 2026',done:overall>=90},
+    {ic:'📕',t:'Готов к уровню N2',sub:'Этап 3 завершён · к 31 мая 2027',done:overall>=95},
+    {ic:'🎯',t:'Сдача пробного теста',sub:'15 июн 2027',done:mextPct>=100}
+  ];
+  document.getElementById('milestones').innerHTML=mss.map(m=>`<div class="ms"><div class="ic">${m.done?'✅':m.ic}</div><div><div class="mt ${m.done?'done':''}">${m.t}</div><div class="msub">${m.sub}</div></div></div>`).join('');
+}
+
+C.loadContent(()=>{
+  // Apply dark mode
+  if(C.getSettings().darkMode) document.body.classList.add('dark');
+  render();
+});
+// Register service worker
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>

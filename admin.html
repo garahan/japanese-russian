@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>🌸 Admin — Mastery System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f0ede8;--card:#fff;--ink:#1c1c2e;--ink2:#52526e;--ink3:#9898b0;--accent:#ff4b4b;--green:#00c853;--blue:#2979ff;--gold:#ffb300;--purple:#7c4dff;--border:#e4e0d8;--shadow:0 4px 12px rgba(28,28,46,.06);--r:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+.wrap{max-width:820px;margin:0 auto;padding:1.5rem 1rem 4rem}
+.btn{border:none;border-radius:12px;padding:10px 18px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+.btn-primary{background:var(--ink);color:#fff}.btn-green{background:var(--green);color:#fff}
+.btn-ghost{background:var(--bg);color:var(--ink2)}.btn-danger{background:var(--accent);color:#fff}
+.btn-sm{padding:6px 12px;font-size:13px;border-radius:9px}
+.input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:12px;font-size:15px;font-family:inherit;background:var(--card)}
+textarea.input{font-family:'SF Mono',Menlo,monospace;font-size:13px;line-height:1.5}
+
+/* login */
+#login{max-width:380px;margin:18vh auto;text-align:center}
+.lcard{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:2rem;box-shadow:var(--shadow)}
+
+/* nav */
+.nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.4rem}
+.tab{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:9px 16px;font-weight:800;font-size:14px;cursor:pointer;color:var(--ink2)}
+.tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.page{display:none;animation:fade .25s}.page.active{display:block}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:10px;flex-wrap:wrap}
+h2{font-size:22px;font-weight:900}.muted{color:var(--ink3);font-size:13px;font-weight:600}
+
+.pack{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.1rem 1.2rem;margin-bottom:.8rem;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.pack .pl{font-weight:900;font-size:15px}
+.pack .pm{font-size:12px;color:var(--ink3);font-weight:600;margin-top:3px}
+.chip{display:inline-block;font-size:11px;font-weight:800;padding:3px 9px;border-radius:20px;background:var(--bg);color:var(--ink2);margin-right:5px;margin-top:6px}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(28,28,46,.5);display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;z-index:100;overflow-y:auto}
+.overlay.show{display:flex}
+.sheet{background:var(--card);border-radius:var(--r);padding:1.5rem;width:100%;max-width:680px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.sheet h3{font-size:18px;font-weight:900;margin-bottom:4px}
+.valbox{border-radius:12px;padding:12px 14px;font-size:13px;font-weight:600;margin:12px 0;line-height:1.6}
+.valbox.ok{background:#eafaf1;color:#008738}.valbox.err{background:#ffeeee;color:#d32f2f}.valbox.warn{background:#fff8e1;color:#b26a00}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 24px;border-radius:30px;font-weight:800;z-index:200;display:none}
+.toast.show{display:block;animation:fade .3s}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.7rem;margin-bottom:1rem}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem;text-align:center;box-shadow:var(--shadow)}
+.stat .v{font-size:26px;font-weight:900}.stat .l{font-size:11px;color:var(--ink3);font-weight:700;text-transform:uppercase;margin-top:2px}
+.section{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:1.3rem;box-shadow:var(--shadow);margin-bottom:1rem}
+code{background:var(--bg);padding:2px 6px;border-radius:6px;font-size:13px}
+body.dark{--bg:#1a1a2e;--card:#252542;--ink:#e8e8f0;--ink2:#a0a0c0;--ink3:#6e6e90;--border:#353560;--shadow:0 4px 12px rgba(0,0,0,.3)}
+body.dark .btn-ghost{background:var(--bg);color:var(--ink2)}
+body.dark .tab{background:var(--card);border-color:var(--border);color:var(--ink2)}
+body.dark .tab.active{background:var(--ink);color:#fff}
+body.dark .input{background:var(--card);border-color:var(--border);color:var(--ink)}
+body.dark .chip{background:var(--bg);color:var(--ink2)}
+body.dark code{background:var(--bg)}
+/* activity feed */
+.feed-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.feed-item:last-child{border-bottom:none}
+.feed-icon{font-size:20px;flex-shrink:0;width:32px;text-align:center}
+.feed-body{flex:1;min-width:0}
+.feed-title{font-weight:800;font-size:14px}
+.feed-meta{font-size:12px;color:var(--ink3);font-weight:600;margin-top:2px}
+.feed-score{font-weight:800;font-size:13px;margin-top:3px}
+.feed-score.good{color:var(--green)}.feed-score.bad{color:var(--accent)}
+.breakdown-row{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:14px;font-weight:700}
+.breakdown-bar{flex:1;height:8px;background:var(--bg);border-radius:4px;overflow:hidden}
+.breakdown-bar .f{height:100%;border-radius:4px;transition:width .5s}
+.breakdown-count{font-weight:800;font-size:13px;color:var(--ink2);min-width:30px;text-align:right}
+.exam-result-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:14px;font-weight:700}
+.exam-result-item:last-child{border-bottom:none}
+.exam-badge{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:20px}
+.exam-badge.pass{background:#eafaf1;color:#008738}.exam-badge.fail{background:#ffeeee;color:#d32f2f}
+body.dark .feed-item{border-color:var(--border)}
+body.dark .breakdown-bar{background:var(--bg)}
+
+/* insight cards */
+.insight-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:.6rem;box-shadow:var(--shadow)}
+.insight-card .ic-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.insight-card .ic-icon{font-size:20px}
+.insight-card .ic-title{font-weight:900;font-size:14px}
+.insight-card .ic-body{font-size:13px;color:var(--ink2);font-weight:600;line-height:1.6}
+.insight-card .ic-trend{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:900;padding:3px 8px;border-radius:20px;margin-left:6px}
+.insight-card .ic-trend.up{background:#e8f5e9;color:#2e7d32}
+.insight-card .ic-trend.down{background:#fce4ec;color:#c62828}
+.insight-card .ic-trend.flat{background:var(--bg);color:var(--ink3)}
+
+/* weak points detail */
+.weak-detail{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;font-weight:700}
+.weak-detail:last-child{border-bottom:none}
+.weak-detail .wd-jp{font-size:16px;font-weight:900;min-width:80px}
+.weak-detail .wd-meta{font-size:11px;color:var(--ink3);font-weight:600}
+.weak-detail .wd-bar{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.weak-detail .wd-bar .f{height:100%;border-radius:3px}
+.weak-detail .wd-tag{font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;text-transform:uppercase}
+.weak-detail .wd-tag.vocab{background:#e3f2fd;color:#1565c0}
+.weak-detail .wd-tag.grammar{background:#f3e5f5;color:#7b1fa2}
+.weak-detail .wd-tag.kanji{background:#e8f5e9;color:#2e7d32}
+
+/* heatmap */
+.heatmap{display:grid;grid-template-columns:repeat(30,1fr);gap:3px;margin-top:8px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.heat-cell{aspect-ratio:1/1;border-radius:4px;background:var(--bg)}
+.heat-cell.l1{background:#c8e6c9}.heat-cell.l2{background:#81c784}.heat-cell.l3{background:#4caf50}.heat-cell.l4{background:#2e7d32}
+.heat-cell.empty{background:var(--bg);opacity:.5}
+
+/* generate test button */
+.gen-test-btn{background:linear-gradient(135deg,#7c4dff,#2196f3);color:#fff;border:none;border-radius:14px;padding:14px 20px;font-weight:900;font-size:15px;cursor:pointer;font-family:inherit;width:100%;box-shadow:0 4px 14px rgba(124,77,255,.3);transition:transform .15s}
+.gen-test-btn:active{transform:scale(.97)}
+.gen-test-btn:disabled{opacity:.5;cursor:wait}
+.test-link-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-top:10px;font-size:13px;font-weight:700;word-break:break-all;display:none}
+.test-link-box.show{display:block}
+.test-link-box .tl-copy{background:var(--ink);color:#fff;border:none;border-radius:8px;padding:6px 14px;font-weight:800;font-size:12px;cursor:pointer;margin-top:6px}
+
+/* mini stat row */
+.mini-stat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.6rem}
+.mini-stat{flex:1;min-width:100px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow)}
+.mini-stat .ms-v{font-size:18px;font-weight:900}
+.mini-stat .ms-l{font-size:10px;color:var(--ink3);font-weight:700;text-transform:uppercase;margin-top:2px}
+.mini-stat .ms-delta{font-size:10px;font-weight:900;margin-top:3px}
+.mini-stat .ms-delta.up{color:var(--green)}.mini-stat .ms-delta.down{color:var(--accent)}
+
+body.dark .insight-card{background:var(--card);border-color:var(--border)}
+body.dark .heat-cell.empty{background:var(--bg)}
+body.dark .test-link-box{background:var(--bg);border-color:var(--border)}
+/* test builder */
+.lesson-cb{width:18px;height:18px;cursor:pointer;accent-color:var(--blue)}
+#test-lesson-list label{transition:background .15s}
+body.dark #test-lesson-list{background:var(--card);border-color:var(--border)}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="lcard">
+    <h2 style="margin-bottom:1.2rem">🔐 Admin Login</h2>
+    <input type="password" id="pwd" class="input" style="text-align:center;margin-bottom:.8rem" placeholder="Admin password" onkeydown="if(event.key==='Enter')login()">
+    <button class="btn btn-primary" style="width:100%" onclick="login()">Login</button>
+    <button class="btn btn-ghost" style="width:100%;margin-top:.6rem" onclick="location.href='/'">Back to app</button>
+    <div id="lerr" class="muted" style="color:var(--accent);margin-top:.8rem"></div>
+  </div>
+</div>
+
+<div class="wrap" id="panel" style="display:none">
+  <div class="head"><h2>🌸 Content Studio</h2><button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button></div>
+  <div class="nav">
+    <div class="tab active" onclick="tab('lessons',this)">📦 Lesson Packs</div>
+    <div class="tab" onclick="tab('bulk',this)">📥 Bulk Import</div>
+    <div class="tab" onclick="tab('reports',this)">📊 Activity Dashboard</div>
+    <div class="tab" onclick="tab('tests',this)">🧪 Test Builder</div>
+    <div class="tab" onclick="tab('system',this)">🛠 System</div>
+  </div>
+
+  <!-- LESSONS -->
+  <div class="page active" id="page-lessons">
+    <div class="head"><div class="muted" id="pack-count">Loading…</div><button class="btn btn-primary btn-sm" onclick="newPack()">+ New Lesson Pack</button></div>
+    <div id="pack-list"></div>
+  </div>
+
+  <!-- BULK -->
+  <div class="page" id="page-bulk">
+    <div class="section">
+      <h3 style="font-weight:900;margin-bottom:6px">Bulk import lesson packs</h3>
+      <p class="muted" style="margin-bottom:12px">Paste a JSON <strong>array of Lesson Packs</strong>. Existing packs with the same id are skipped (no data loss). Each pack is validated before import.</p>
+      <textarea id="bulk" class="input" rows="12" placeholder='[ { "level":"N4", "module":"travel", "lesson":"…", "vocabulary":[…], "grammar":[…], "reading":{…}, "questions":[…] } ]'></textarea>
+      <button class="btn btn-green" style="width:100%;margin-top:12px" onclick="bulkImport()">Validate & import</button>
+      <div id="bulk-val"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="page" id="page-reports">
+    <div id="rep-loading" class="muted" style="text-align:center;padding:2rem">Loading activity logs…</div>
+    <div id="rep-dashboard" style="display:none">
+      <!-- Summary stats -->
+      <div class="statgrid" id="rep-stats"></div>
+
+      <!-- Mini stats: local device insights -->
+      <div class="mini-stat-row" id="rep-mini-stats"></div>
+
+      <!-- Growth trend insights -->
+      <div class="section">
+        <h3 style="font-weight:900;margin-bottom:12px">📈 Growth Trend & Insights</h3>
+        <div id="rep-insights"></div>
+        <div id="rep-sparkline" style="margin-top:10px;padding:10px;background:var(--bg);border-radius:12px"></div>
+        <div id="rep-heatmap-section" style="margin-top:14px">
+          <div style="font-size:12px;font-weight:800;color:var(--ink3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em">Activity Heatmap (last 30 days)</div>
+          <div class="heatmap" id="rep-heatmap"></div>
+        </div>
+      </div>
+
+      <!-- Weak points detail -->
+      <div class="section">
+        <h3 style="font-weight:900;margin-bottom:4px">🎯 Weak Points Detail</h3>
+        <p class="muted" style="font-size:12px;margin-bottom:10px">Items the user struggles with most — ranked by wrong count & recency</p>
+        <div id="rep-weak-detail"></div>
+        <button class="gen-test-btn" id="gen-test-btn" style="margin-top:14px" onclick="generateWeaknessTest()">🧪 Generate 30-question test targeting weak points</button>
+        <div class="test-link-box" id="test-link-box">
+          <div style="font-weight:900;margin-bottom:4px">✅ Test generated! Share this link:</div>
+          <div id="test-link-url" style="color:var(--blue)"></div>
+          <button class="tl-copy" onclick="copyTestLink()">📋 Copy link</button>
+        </div>
+      </div>
+
+      <!-- Activity breakdown -->
+      <div class="section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h3 style="font-weight:900">📊 Activity Breakdown</h3>
+          <button class="btn btn-sm btn-ghost" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+        <div id="rep-breakdown"></div>
+      </div>
+
+      <!-- Exam & JLPT Results -->
+      <div class="section" id="rep-exams-section" style="display:none">
+        <h3 style="font-weight:900;margin-bottom:12px">📝 Exam Results</h3>
+        <div id="rep-exams"></div>
+      </div>
+
+      <!-- Skill mastery (local device) -->
+      <div class="section">
+        <h3 style="font-weight:900;margin-bottom:12px">🧠 Skill Mastery <span class="muted" style="font-size:12px;font-weight:600">(this device)</span></h3>
+        <div id="rep-skills"></div>
+      </div>
+
+      <!-- Badge progress -->
+      <div class="section">
+        <h3 style="font-weight:900;margin-bottom:12px">🏅 Badge Progress <span class="muted" style="font-size:12px;font-weight:600">(this device)</span></h3>
+        <div id="rep-badges"></div>
+      </div>
+
+      <!-- Activity Feed -->
+      <div class="section">
+        <h3 style="font-weight:900;margin-bottom:12px">📋 Recent Activity Feed</h3>
+        <div id="rep-feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST BUILDER -->
+  <div class="page" id="page-tests">
+    <div class="section">
+      <h3 style="font-weight:900;margin-bottom:6px">🧪 Manual Test Builder</h3>
+      <p class="muted" style="margin-bottom:14px">Select lessons and content types to generate a custom test. A shareable link will be created for the user.</p>
+
+      <div style="margin-bottom:14px">
+        <div style="font-weight:800;font-size:14px;margin-bottom:8px">1. Select lessons</div>
+        <div id="test-lesson-list" style="max-height:320px;overflow-y:auto;border:1px solid var(--border);border-radius:12px;padding:8px"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn btn-ghost btn-sm" onclick="selectAllLessons(true)">Select all</button>
+          <button class="btn btn-ghost btn-sm" onclick="selectAllLessons(false)">Deselect all</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-weight:800;font-size:14px;margin-bottom:8px">2. Select content types</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;cursor:pointer"><input type="checkbox" id="ct-vocab" checked> 📖 Vocabulary</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;cursor:pointer"><input type="checkbox" id="ct-grammar" checked> ✍️ Grammar</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;cursor:pointer"><input type="checkbox" id="ct-kanji" checked> 🈶 Kanji</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;cursor:pointer"><input type="checkbox" id="ct-reading" checked> 📚 Reading</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;cursor:pointer"><input type="checkbox" id="ct-listening"> 🎧 Listening</label>
+          <label style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:14px;cursor:pointer"><input type="checkbox" id="ct-questions" checked> 📝 Quiz Questions</label>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <div style="font-weight:800;font-size:14px;margin-bottom:8px">3. Number of questions</div>
+        <select id="test-q-count" class="input" style="max-width:200px">
+          <option value="10">10 questions</option>
+          <option value="15">15 questions</option>
+          <option value="20" selected>20 questions</option>
+          <option value="30">30 questions</option>
+          <option value="50">50 questions</option>
+          <option value="0">All available</option>
+        </select>
+      </div>
+
+      <button class="gen-test-btn" id="gen-lesson-test-btn" onclick="generateLessonTest()">🧪 Generate custom test from selected lessons</button>
+      <div class="test-link-box" id="lesson-test-link-box">
+        <div style="font-weight:900;margin-bottom:4px">✅ Test generated! Share this link:</div>
+        <div id="lesson-test-link-url" style="color:var(--blue)"></div>
+        <button class="tl-copy" onclick="copyLessonTestLink()">📋 Copy link</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM -->
+  <div class="page" id="page-system">
+    <div class="section">
+      <h3 style="font-weight:900;margin-bottom:8px">📤 Seed the database</h3>
+      <p class="muted">First-time setup: load the sample N4 content into your database. Visit <code>/api/seed?secret=YOUR_SEED_SECRET</code> once after deploying.</p>
+    </div>
+    <div class="section">
+      <h3 style="font-weight:900;margin-bottom:8px">🔌 Connection check</h3>
+      <button class="btn btn-ghost btn-sm" onclick="checkDebug()">Run check</button>
+      <pre id="debug-out" class="muted" style="margin-top:10px;white-space:pre-wrap"></pre>
+    </div>
+    <div class="section">
+      <h3 style="font-weight:900;margin-bottom:8px">💾 Backup & Restore</h3>
+      <p class="muted">Export all learning progress (SRS, XP, streak, badges, settings) to a JSON file. Import to restore on a new device.</p>
+      <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="exportProgress()">⬇ Export progress</button>
+        <label class="btn btn-ghost btn-sm" style="cursor:pointer">⬆ Import progress<input type="file" accept=".json" onchange="importProgress(event)" style="display:none"></label>
+      </div>
+      <div id="backup-msg" style="margin-top:8px"></div>
+    </div>
+    <div class="section" style="border-color:#ffd1d1">
+      <h3 style="color:var(--accent);font-weight:900;margin-bottom:8px">⚠️ Danger zone</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-danger btn-sm" onclick="resetLocal()">Reset this device's progress</button>
+        <button class="btn btn-danger btn-sm" onclick="clearLogs()">Clear all activity logs</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- editor modal -->
+<div class="overlay" id="editor">
+  <div class="sheet">
+    <h3 id="ed-title">Edit Lesson Pack</h3>
+    <p class="muted" style="margin-bottom:10px">The pack is a single JSON object. Validation runs the Golden Rule before saving.</p>
+    <textarea id="ed-json" class="input" rows="16"></textarea>
+    <div id="ed-val"></div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn btn-ghost btn-sm" onclick="validateEditor()">Validate</button>
+      <button class="btn btn-green btn-sm" onclick="savePack()">Save pack</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeEditor()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/n3-content.js"></script>
+<script src="/seed-data.js"></script>
+<script>
+if (window.N3_CONTENT && window.SEED_CONTENT) {
+  window.SEED_CONTENT = window.SEED_CONTENT.concat(window.N3_CONTENT);
+}
+</script>
+<script src="/memory-engine.js"></script>
+<script src="/Coach.js"></script>
+<script src="/core.js"></script>
+<script>
+const C=window.Core;
+let PASSWORD=sessionStorage.getItem('admin_pwd')||'';
+let PACKS=[];let editingId=null;
+
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
+
+/* ---- auth ---- */
+async function login(){
+  const pwd=document.getElementById('pwd').value;
+  try{
+    const r=await fetch('/api/admin-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pwd})});
+    const j=await r.json();
+    if(j.ok){PASSWORD=pwd;sessionStorage.setItem('admin_pwd',pwd);showPanel()}
+    else document.getElementById('lerr').textContent=j.error||'Wrong password';
+  }catch(e){document.getElementById('lerr').textContent='Network error — is the API deployed?'}
+}
+function logout(){sessionStorage.removeItem('admin_pwd');location.reload()}
+function showPanel(){document.getElementById('login').style.display='none';document.getElementById('panel').style.display='block';loadPacks()}
+if(PASSWORD)showPanel();
+
+/* ---- tabs ---- */
+function tab(name,el){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+name).classList.add('active');if(name==='reports')renderReports();if(name==='tests')renderTestBuilder()}
+
+/* ---- load + list packs ---- */
+async function loadPacks(){
+  try{const r=await fetch('/api/content?type=lessons');const j=await r.json();PACKS=(j&&j.data)||[]}
+  catch(e){PACKS=window.SEED_CONTENT||[]}
+  renderList();
+}
+function renderList(){
+  document.getElementById('pack-count').textContent=PACKS.length+' lesson pack'+(PACKS.length!==1?'s':'');
+  if(!PACKS.length){document.getElementById('pack-list').innerHTML='<p class="muted">No packs yet. Create one or seed the database from the System tab.</p>';return}
+  document.getElementById('pack-list').innerHTML=PACKS.map(p=>{
+    const counts=[['vocab',(p.vocabulary||[]).length],['grammar',(p.grammar||[]).length],['kanji',(p.kanji||[]).length],['reading',p.reading?1:0],['listen',(p.listening||[]).length],['Q',(p.questions||[]).length]];
+    return `<div class="pack"><div><div class="pl">${p.moduleLabel||p.module} · ${p.lessonLabel||p.lesson}</div><div class="pm">${p.level} · ${p.module}/${p.lesson}</div><div>${counts.map(c=>`<span class="chip">${c[0]} ${c[1]}</span>`).join('')}</div></div>
+      <div style="display:flex;gap:6px"><button class="btn btn-ghost btn-sm" onclick="editPack('${packId(p)}')">Edit</button><button class="btn btn-danger btn-sm" onclick="delPack('${packId(p)}')">Del</button></div></div>`;
+  }).join('');
+}
+function packId(p){return p.id||(p.level+'_'+p.module+'_'+p.lesson)}
+
+/* ---- validation gate (Golden Rule) ---- */
+function validatePack(p){
+  const errors=[],warnings=[];
+  if(!p||typeof p!=='object')return{errors:['Not a valid object'],warnings:[]};
+  ['level','module','lesson'].forEach(f=>{if(!p[f])errors.push('Missing '+f)});
+  (p.vocabulary||[]).forEach((v,i)=>{['word','reading','meaning','example'].forEach(f=>{if(!v[f])errors.push(`vocab[${i}] missing ${f} (sentence-first rule)`)})});
+  (p.grammar||[]).forEach((g,i)=>{
+    if(!g.point)errors.push(`grammar[${i}] missing point`);
+    if(!g.explanation)errors.push(`grammar[${i}] missing explanation`);
+    if(!g.examples||g.examples.length<3)errors.push(`grammar[${i}] needs ≥3 examples (has ${g.examples?g.examples.length:0})`);
+    if(!g.listening)warnings.push(`grammar[${i}] (${g.point||'?'}) missing listening example`);
+    if(!g.production)warnings.push(`grammar[${i}] (${g.point||'?'}) missing production prompt`);
+  });
+  (p.kanji||[]).forEach((k,i)=>{['char','reading','meaning'].forEach(f=>{if(!k[f])errors.push(`kanji[${i}] missing ${f}`)})});
+  if(p.reading){
+    if(!p.reading.passage)errors.push('reading missing passage');
+    const rq=p.reading.questions||[];
+    if(rq.length<1)errors.push('reading needs ≥1 question');
+    if(rq.length<5)warnings.push(`reading has ${rq.length} questions (target ≥5)`);
+    rq.forEach((q,i)=>{if(!q.o||q.o.length<2)errors.push(`reading.q[${i}] needs ≥2 options`);if(typeof q.c!=='number'||q.c>=(q.o||[]).length)errors.push(`reading.q[${i}] correct index invalid`)});
+  }
+  (p.listening||[]).forEach((l,i)=>{if(!l.audioText)errors.push(`listening[${i}] missing audioText`);if(!l.o||l.o.length<2)errors.push(`listening[${i}] needs ≥2 options`);if(typeof l.c!=='number'||l.c>=(l.o||[]).length)errors.push(`listening[${i}] correct index invalid`)});
+  (p.questions||[]).forEach((q,i)=>{
+    if(!q.o||q.o.length<2)errors.push(`questions[${i}] needs ≥2 options`);
+    if(typeof q.c!=='number'||q.c>=(q.o||[]).length)errors.push(`questions[${i}] correct index invalid`);
+    if(!q.dim)warnings.push(`questions[${i}] missing dim tag`);
+    else if(['vocab','grammar','kanji'].includes(q.dim)&&!q.linksTo)warnings.push(`questions[${i}] (${q.dim}) has no linksTo — it won't reinforce a specific item's review`);
+  });
+  return{errors,warnings};
+}
+function ensureIds(p){
+  const stamp=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  p.id=packId(p);
+  ['vocabulary','grammar','kanji','listening','questions'].forEach(t=>(p[t]||[]).forEach(it=>{if(!it.id)it.id=t[0]+'_'+stamp()}));
+  if(p.reading){if(!p.reading.id)p.reading.id='r_'+stamp();(p.reading.questions||[]).forEach(q=>{if(!q.id)q.id='rq_'+stamp()})}
+  return p;
+}
+function valHTML(v){let h='';if(v.errors.length)h+=`<div class="valbox err">❌ ${v.errors.length} error(s) — must fix:<br>${v.errors.join('<br>')}</div>`;if(v.warnings.length)h+=`<div class="valbox warn">⚠️ ${v.warnings.length} warning(s) — allowed but recommended:<br>${v.warnings.join('<br>')}</div>`;if(!v.errors.length&&!v.warnings.length)h='<div class="valbox ok">✅ Passes all checks.</div>';return h}
+
+/* ---- editor ---- */
+const TEMPLATE={level:"N4",module:"new-module",moduleLabel:"テーマ — Theme",lesson:"new-lesson",lessonLabel:"Lesson title",
+  vocabulary:[{word:"言葉",reading:"ことば",meaning:"word",example:"新しい言葉を覚えます。",exampleMeaning:"I'll memorize a new word."}],
+  grammar:[{point:"〜",explanation:"…",examples:["例1","例2","例3"],listening:"…",readingRef:"new-lesson",production:"Write a sentence using …"}],
+  kanji:[{char:"言",reading:"げん/い(う)",meaning:"say, word",exampleWord:"言葉 (ことば)"}],
+  reading:{title:"Title",passage:"…",targetWords:[],targetGrammar:[],questions:[{q:"質問？",o:["A","B","C","D"],c:0,exp:"…"}]},
+  listening:[{audioText:"…",a:"What is being said?",o:["A","B","C","D"],c:0,exp:"…"}],
+  questions:[{dim:"vocab",type:"recall",s:"＿＿",a:"Best word?",o:["A","B","C","D"],c:0,exp:"…",linksTo:""}]};
+function newPack(){editingId=null;document.getElementById('ed-title').textContent='New Lesson Pack';document.getElementById('ed-json').value=JSON.stringify(TEMPLATE,null,2);document.getElementById('ed-val').innerHTML='';document.getElementById('editor').classList.add('show')}
+function editPack(id){const p=PACKS.find(x=>packId(x)===id);if(!p)return;editingId=id;document.getElementById('ed-title').textContent='Edit: '+(p.lessonLabel||p.lesson);document.getElementById('ed-json').value=JSON.stringify(p,null,2);document.getElementById('ed-val').innerHTML='';document.getElementById('editor').classList.add('show')}
+function closeEditor(){document.getElementById('editor').classList.remove('show')}
+function parseEditor(){try{return{ok:true,p:JSON.parse(document.getElementById('ed-json').value)}}catch(e){return{ok:false,err:e.message}}}
+function validateEditor(){const r=parseEditor();if(!r.ok){document.getElementById('ed-val').innerHTML=`<div class="valbox err">❌ JSON syntax error: ${r.err}</div>`;return null}const v=validatePack(r.p);document.getElementById('ed-val').innerHTML=valHTML(v);return{p:r.p,v}}
+async function savePack(){
+  const res=validateEditor();if(!res)return;
+  if(res.v.errors.length){toast('Fix errors first');return}
+  const p=ensureIds(res.p);
+  if(editingId)p.id=editingId; // keep the same storage key even if labels change
+  const action=editingId?'update':'add';
+  const ok=await apiWrite({type:'lessons',action,item:p});
+  if(ok){toast(editingId?'Pack updated':'Pack added');closeEditor();loadPacks()}
+}
+async function delPack(id){const p=PACKS.find(x=>packId(x)===id);if(!p||!confirm('Delete this lesson pack?'))return;const ok=await apiWrite({type:'lessons',action:'delete',item:{id:packId(p)}});if(ok){toast('Deleted');loadPacks()}}
+
+/* ---- bulk ---- */
+async function bulkImport(){
+  let arr;try{arr=JSON.parse(document.getElementById('bulk').value)}catch(e){document.getElementById('bulk-val').innerHTML=`<div class="valbox err">❌ JSON error: ${e.message}</div>`;return}
+  if(!Array.isArray(arr)){document.getElementById('bulk-val').innerHTML='<div class="valbox err">❌ Must be an array of packs</div>';return}
+  let allErr=[];const clean=[];
+  arr.forEach((p,i)=>{const v=validatePack(p);if(v.errors.length)allErr.push(`Pack ${i} (${p.lesson||'?'}): ${v.errors.join('; ')}`);else clean.push(ensureIds(p))});
+  if(allErr.length){document.getElementById('bulk-val').innerHTML=`<div class="valbox err">❌ ${allErr.length} pack(s) rejected:<br>${allErr.join('<br>')}</div>`;return}
+  const ok=await apiWrite({type:'lessons',action:'bulk_add',items:clean});
+  if(ok){document.getElementById('bulk-val').innerHTML=`<div class="valbox ok">✅ Imported ${clean.length} pack(s).</div>`;document.getElementById('bulk').value='';loadPacks()}
+}
+
+/* ---- API write ---- */
+async function apiWrite(body){
+  try{const r=await fetch('/api/content',{method:'POST',headers:{'Content-Type':'application/json','x-admin-password':PASSWORD},body:JSON.stringify(body)});const j=await r.json();if(!j.ok){toast(j.error||'Write failed');return false}return true}
+  catch(e){toast('Network error');return false}
+}
+
+/* ---- reports (activity dashboard) ---- */
+const TYPE_META={
+  'mission':{icon:'🏆',label:'Mission',color:'var(--gold)'},
+  'reading':{icon:'📖',label:'Reading',color:'var(--blue)'},
+  'practice':{icon:'💪',label:'Practice',color:'var(--accent)'},
+  'review':{icon:'🔁',label:'Review',color:'var(--blue)'},
+  'flashcards':{icon:'🃏',label:'Flashcards',color:'var(--purple)'},
+  'lesson-quiz':{icon:'📝',label:'Lesson Quiz',color:'var(--green)'},
+  'lesson-write':{icon:'✍️',label:'Writing Drill',color:'var(--ink2)'},
+  'exam':{icon:'📋',label:'MEXT Exam',color:'var(--accent)'},
+  'jlpt':{icon:'🎯',label:'JLPT Test',color:'var(--blue)'},
+  'study':{icon:'📚',label:'Study',color:'var(--ink2)'},
+  'drill':{icon:'🏋️',label:'Drill Practice',color:'var(--green)'},
+  'listening':{icon:'🎧',label:'Listening',color:'var(--purple)'},
+  'mistakes':{icon:'🔧',label:'Mistake Review',color:'var(--accent)'},
+  'test':{icon:'🧪',label:'Weakness Test',color:'var(--purple)'},
+};
+function timeAgo(iso){
+  const d=new Date(iso),now=Date.now(),diff=now-d.getTime();
+  const m=Math.floor(diff/60000),h=Math.floor(diff/3600000),day=Math.floor(diff/86400000);
+  if(day>0)return day+'d ago';
+  if(h>0)return h+'h ago';
+  if(m>0)return m+'m ago';
+  return 'just now';
+}
+function renderReports(){
+  document.getElementById('rep-loading').style.display='block';
+  document.getElementById('rep-dashboard').style.display='none';
+  fetchLogs();
+  // Also render local skill mastery + weak points + insights
+  C.loadContent(()=>{ renderLocalSkills(); renderLocalInsights(); renderWeakDetail(); renderHeatmap(); renderBadges(); });
+}
+async function fetchLogs(){
+  try{
+    const r=await fetch('/api/logs?limit=100',{headers:{'x-admin-password':PASSWORD}});
+    const j=await r.json();
+    if(j.ok){
+      renderDashboard(j.logs,j.summary||{});
+      return;
+    }
+  }catch(e){}
+  // Fallback: no logs
+  renderDashboard([],{});
+}
+function renderDashboard(logs,summary){
+  document.getElementById('rep-loading').style.display='none';
+  document.getElementById('rep-dashboard').style.display='block';
+
+  // Summary stats
+  const streak=summary.streak||0;
+  const lastAct=summary.lastActivity?timeAgo(summary.lastActivity):'—';
+  document.getElementById('rep-stats').innerHTML=`
+    <div class="stat"><div class="v">${summary.totalLogs||0}</div><div class="l">Total Sessions</div></div>
+    <div class="stat"><div class="v">${summary.sessions24h||0}</div><div class="l">Last 24h</div></div>
+    <div class="stat"><div class="v" style="color:var(--gold)">${streak}</div><div class="l">Day Streak</div></div>
+    <div class="stat"><div class="v" style="color:var(--blue)">${summary.sessions7d||0}</div><div class="l">Last 7d</div></div>
+    <div class="stat"><div class="v">${summary.avgStudyPct!=null?summary.avgStudyPct+'%':'—'}</div><div class="l">Avg Score</div></div>
+    <div class="stat"><div class="v" style="font-size:14px">${lastAct}</div><div class="l">Last Active</div></div>`;
+
+  // Activity breakdown
+  const byType=summary.byType||{};
+  const maxCount=Math.max(1,...Object.values(byType));
+  const breakdownHTML=Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([type,count])=>{
+    const m=TYPE_META[type]||TYPE_META['study'];
+    const w=Math.round(count/maxCount*100);
+    return `<div class="breakdown-row"><span style="min-width:110px">${m.icon} ${m.label}</span>
+      <div class="breakdown-bar"><div class="f" style="width:${w}%;background:${m.color}"></div></div>
+      <span class="breakdown-count">${count}</span></div>`;
+  }).join('');
+  document.getElementById('rep-breakdown').innerHTML=breakdownHTML||'<p class="muted">No activity yet.</p>';
+
+  // Exam & JLPT results
+  const exams=[...(summary.examResults||[]).map(e=>({...e,kind:'exam'})),
+               ...(summary.jlptResults||[]).map(e=>({...e,kind:'jlpt'}))];
+  if(exams.length){
+    document.getElementById('rep-exams-section').style.display='block';
+    document.getElementById('rep-exams').innerHTML=exams.map(e=>{
+      const badge=e.passed?'<span class="exam-badge pass">PASS</span>':'<span class="exam-badge fail">NOT YET</span>';
+      const score=e.kind==='jlpt'?`${e.score}/180`:`${e.pct}%`;
+      const lvl=e.kind==='jlpt'?e.level:e.level;
+      const icon=e.kind==='jlpt'?'🎯':'📋';
+      return `<div class="exam-result-item"><span>${icon} ${lvl}</span><span>${score} ${badge}</span></div>`;
+    }).join('');
+  }else{
+    document.getElementById('rep-exams-section').style.display='none';
+  }
+
+  // Activity feed
+  const feedHTML=logs.length?logs.slice(0,50).map(l=>{
+    const m=TYPE_META[l.type]||TYPE_META['study'];
+    let detail='';
+    if(l.pct!=null)detail=`<div class="feed-score ${l.pct>=70?'good':'bad'}">${l.pct}% correct</div>`;
+    else if(l.correct!=null&&l.total!=null)detail=`<div class="feed-score ${l.correct/l.total>=0.7?'good':'bad'}">${l.correct}/${l.total}</div>`;
+    if(l.examLevel)detail+=`<div class="feed-meta">MEXT Level ${l.examLevel} · ${l.examPct}% ${l.examPassed?'✅':'❌'}</div>`;
+    if(l.jlptLevel)detail+=`<div class="feed-meta">JLPT ${l.jlptLevel} · ${l.jlptScore}/180 ${l.jlptPassed?'✅':'❌'}</div>`;
+    if(l.lesson)detail+=`<div class="feed-meta">Lesson ${l.lesson}</div>`;
+    if(l.overall!=null)detail+=`<div class="feed-meta">Mastery ${l.overall}% · 🔥 ${l.momentum||0}</div>`;
+    return `<div class="feed-item"><div class="feed-icon">${m.icon}</div>
+      <div class="feed-body"><div class="feed-title">${m.label}</div>
+      <div class="feed-meta">${timeAgo(l.timestamp)}</div>${detail}</div></div>`;
+  }).join(''):'<p class="muted">No activity logged yet. Activity will appear here as Mahym studies.</p>';
+  document.getElementById('rep-feed').innerHTML=feedHTML;
+}
+
+function renderLocalInsights(){
+  const overall=C.overallMastery();
+  const ret=C.retention();
+  const mom=C.getMomentum().value;
+  const streak=C.getStreakData();
+  const xp=C.getXP();
+  const srs=C.getSRS();
+  const learned=Object.values(srs).filter(s=>s.reps>0).length;
+  const mastered=Object.keys(srs).filter(id=>C.itemMastery(id)>=80).length;
+  const growth=C.growthToday();
+  const daysLeft=C.daysToReady(80);
+  const weakN=C.weakCount();
+  const dailyGoal=C.getDailyGoal();
+  const goalPct=C.dailyGoalPct();
+  const snaps=C.snapshots();
+  const snapKeys=Object.keys(snaps).sort();
+  const prevOverall=snapKeys.length>=2?snaps[snapKeys[snapKeys.length-2]]:null;
+  const overallDelta=prevOverall!=null?overall-prevOverall:null;
+
+  // Mini stats row
+  document.getElementById('rep-mini-stats').innerHTML=`
+    <div class="mini-stat"><div class="ms-v">${overall}%</div><div class="ms-l">Mastery</div><div class="ms-delta ${overallDelta>0?'up':overallDelta<0?'down':''}">${overallDelta!=null?(overallDelta>0?'+'+overallDelta:overallDelta===0?'flat':overallDelta):'—'}</div></div>
+    <div class="mini-stat"><div class="ms-v">${ret!=null?ret+'%':'—'}</div><div class="ms-l">Retention</div><div class="ms-delta ${ret!=null?(ret>=70?'up':'down'):''}">${ret!=null?(ret>=70?'healthy':'needs review'):'—'}</div></div>
+    <div class="mini-stat"><div class="ms-v">${mom}</div><div class="ms-l">Momentum</div><div class="ms-delta ${mom>=20?'up':mom<5?'down':''}">${mom>=20?'on fire':mom>=10?'building':mom<5?'low':''}</div></div>
+    <div class="mini-stat"><div class="ms-v">${learned}</div><div class="ms-l">Learned</div><div class="ms-delta up">+${learned} total</div></div>
+    <div class="mini-stat"><div class="ms-v">${mastered}</div><div class="ms-l">Mastered</div><div class="ms-delta up">${learned>0?Math.round(mastered/learned*100)+'% rate':'—'}</div></div>
+    <div class="mini-stat"><div class="ms-v">${weakN}</div><div class="ms-l">Weak Items</div><div class="ms-delta ${weakN===0?'up':weakN>5?'down':''}">${weakN===0?'all strong':weakN+' to fix'}</div></div>
+    <div class="mini-stat"><div class="ms-v">Lv${xp.level}</div><div class="ms-l">Level</div><div class="ms-delta up">${xp.total} XP</div></div>
+    <div class="mini-stat"><div class="ms-v">${streak.count}</div><div class="ms-l">Streak</div><div class="ms-delta ${streak.count>=7?'up':''}">${streak.count>=7?'🔥':streak.count>=3?'building':'start!'}</div></div>
+  `;
+
+  // Insight cards
+  const insights=[];
+
+  // Growth trend
+  if(growth>0){
+    insights.push({icon:'📈',title:'Growth Today',body:`Mastery increased by <b>+${growth}%</b> since yesterday. At this rate, you'll reach 80% mastery in <b>${daysLeft} days</b>.`,trend:'up',trendLabel:'+'+growth+'%'});
+  }else if(growth===0&&snapKeys.length>1){
+    insights.push({icon:'📊',title:'Steady',body:'Mastery held steady today. Keep studying to maintain growth.',trend:'flat',trendLabel:'flat'});
+  }else if(growth<0){
+    insights.push({icon:'📉',title:'Dip Detected',body:`Mastery dropped ${growth}%. This is normal after a gap — review to recover.`,trend:'down',trendLabel:growth+'%'});
+  }
+
+  // Retention alert
+  if(ret!=null){
+    if(ret<50){
+      insights.push({icon:'�',title:'Memory Wilting',body:`Retention is at ${ret}%. Many items are due for review. A review session now will recover them quickly.`,trend:'down',trendLabel:ret+'%'});
+    }else if(ret>=85){
+      insights.push({icon:'🌳',title:'Deep Roots',body:`Retention at ${ret}% — memory is strong and durable. Excellent consistency!`,trend:'up',trendLabel:ret+'%'});
+    }
+  }
+
+  // Momentum
+  if(mom>=30){
+    insights.push({icon:'⚡',title:'Charged Up',body:`Momentum at ${mom} — the user is in a powerful learning streak. Keep the fire burning!`,trend:'up',trendLabel:mom+''});
+  }else if(mom<5 && learned>10){
+    insights.push({icon:'🔋',title:'Low Battery',body:`Momentum dropped to ${mom}. Even a 5-minute review session will recharge it.`,trend:'down',trendLabel:mom+''});
+  }
+
+  // Weak points alert
+  if(weakN>=5){
+    const weakest=C.getWeakItems(3);
+    const names=weakest.map(w=>w.item&&(w.item.word||w.item.point||w.item.char)||w.id).join(', ');
+    insights.push({icon:'🎯',title:'Weak Spots Detected',body:`${weakN} items need strengthening. Weakest: ${names}. Use the Generate Test button below to create a targeted test.`,trend:'down',trendLabel:weakN+''});
+  }
+
+  // Daily goal
+  if(goalPct>0){
+    insights.push({icon:'🎯',title:'Daily Goal',body:`${dailyGoal.current}/${dailyGoal.target} items today (${goalPct}%). ${goalPct>=100?'Goal achieved! 🎉':'Keep going!'}`,trend:goalPct>=100?'up':'flat',trendLabel:goalPct+'%'});
+  }
+
+  // Streak insight
+  if(streak.count>=7){
+    insights.push({icon:'🔥',title:'Streak Power',body:`${streak.count}-day streak! Longest: ${streak.longest} days. Each day makes memory stronger.`,trend:'up',trendLabel:streak.count+'d'});
+  }
+
+  // Tiny movement detection
+  if(snapKeys.length>=3){
+    const recent= snapKeys.slice(-3).map(k=>snaps[k]);
+    const microDelta=recent[2]-recent[0];
+    if(Math.abs(microDelta)>=0.1 && Math.abs(microDelta)<2){
+      insights.push({icon:'🔍',title:'Micro-Movement',body:`Tiny ${microDelta>0?'growth':'shift'} of ${microDelta>0?'+':''}${microDelta.toFixed(1)}% over 3 sessions. Every bit counts — consistency compounds.`,trend:microDelta>0?'up':'flat',trendLabel:microDelta.toFixed(1)+'%'});
+    }
+  }
+
+  document.getElementById('rep-insights').innerHTML=insights.length?insights.map(ic=>{
+    const tClass=ic.trend||'flat';
+    const tLabel=ic.trendLabel||'';
+    return `<div class="insight-card">
+      <div class="ic-head"><span class="ic-icon">${ic.icon}</span><span class="ic-title">${ic.title}</span><span class="ic-trend ${tClass}">${tLabel}</span></div>
+      <div class="ic-body">${ic.body}</div>
+    </div>`;
+  }).join(''):'<p class="muted">No insights yet — start studying to see growth patterns.</p>';
+}
+
+function renderHeatmap(){
+  const log=C.activityLog();
+  const today=new Date();
+  const cells=[];
+  for(let i=29;i>=0;i--){
+    const d=new Date(today); d.setDate(d.getDate()-i);
+    const k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    const e=log[k];
+    let cls='empty';
+    if(e){
+      const items=e.items||0;
+      if(items>=20)cls='l4';else if(items>=10)cls='l3';else if(items>=5)cls='l2';else if(items>=1)cls='l1';
+    }
+    cells.push(`<div class="heat-cell ${cls}" title="${k}: ${e?(e.items||0)+' items':'no activity'}"></div>`);
+  }
+  document.getElementById('rep-heatmap').innerHTML=cells.join('');
+
+  // Sparkline trend chart
+  const snaps=C.snapshots();
+  const keys=Object.keys(snaps).sort();
+  const sparkEl=document.getElementById('rep-sparkline');
+  if(sparkEl && keys.length>=2){
+    const vals=keys.map(k=>snaps[k]);
+    const min=Math.min(...vals),max=Math.max(...vals);
+    const range=max-min||1;
+    const W=200,H=40;
+    const pts=vals.map((v,i)=>{
+      const x=(i/(vals.length-1))*W;
+      const y=H-((v-min)/range)*H;
+      return x.toFixed(1)+','+y.toFixed(1);
+    }).join(' ');
+    const lastVal=vals[vals.length-1];
+    const firstVal=vals[0];
+    const trend=lastVal>firstVal?'↑':lastVal<firstVal?'↓':'→';
+    const trendColor=lastVal>firstVal?'var(--green)':lastVal<firstVal?'var(--accent)':'var(--ink3)';
+    sparkEl.innerHTML=`<svg width="${W}" height="${H}" style="display:block;margin:0 auto"><polyline points="${pts}" fill="none" stroke="${trendColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${W}" cy="${H-((lastVal-min)/range)*H}" r="3" fill="${trendColor}"/></svg><div style="text-align:center;font-size:11px;font-weight:800;color:${trendColor};margin-top:4px">${firstVal}% → ${lastVal}% ${trend}</div>`;
+  } else if(sparkEl){
+    sparkEl.innerHTML='<p class="muted" style="font-size:12px;text-align:center">Not enough data for trend chart yet.</p>';
+  }
+}
+
+function renderWeakDetail(){
+  const weak=C.getWeakItems(20);
+  const weakN=C.weakCount();
+  const html=weak.length?weak.map(w=>{
+    const it=w.item;
+    const jp=it?(it.word||it.point||it.char||w.id):w.id;
+    const dim=w.dim||'vocab';
+    const meaning=it?(it.meaning||it.pointEn||it.exampleWord||''):'';
+    const m=w.mastery||0;
+    const barColor=m<30?'var(--accent)':m<60?'var(--gold)':'var(--green)';
+    return `<div class="weak-detail">
+      <span class="wd-jp">${jp}</span>
+      <span class="wd-tag ${dim}">${dim}</span>
+      <span class="wd-meta">${w.consecutive}× wrong · ${meaning}</span>
+      <div class="wd-bar"><div class="f" style="width:${100-m}%;background:${barColor}"></div></div>
+      <span class="wd-meta">${m}%</span>
+    </div>`;
+  }).join(''):'<p class="muted">No weak items — everything is solid! 🎉</p>';
+  document.getElementById('rep-weak-detail').innerHTML=html;
+}
+
+function renderLocalSkills(){
+  const meta={vocab:'�🧠 Vocabulary',grammar:'✍ Grammar',reading:'📖 Reading',listening:'🎧 Listening',kanji:'🈶 Kanji'};
+  const dims=C.DIMS||['vocab','grammar','reading','listening','kanji'];
+  document.getElementById('rep-skills').innerHTML=dims.map(d=>{
+    const m=C.dimMastery(d);
+    const color=m==null?'var(--ink3)':m>=70?'var(--green)':m>=40?'var(--gold)':'var(--accent)';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-weight:700;font-size:14px">
+      <span>${meta[d]||d}</span>
+      <span style="display:flex;align-items:center;gap:8px">
+        <span style="width:60px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:${m||0}%;background:${color};border-radius:3px"></span></span>
+        <span style="min-width:36px;text-align:right">${m===null?'—':m+'%'}</span>
+      </span>
+    </div>`;
+  }).join('');
+}
+
+function renderBadges(){
+  const badges=C.checkBadges();
+  const earned=badges.earned||{};
+  const earnedIds=Object.keys(earned);
+  const totalBadges=(C.BADGE_LIST||[]).length||32;
+  const pct=Math.round(earnedIds.length/totalBadges*100);
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <span style="font-size:13px;font-weight:800">${earnedIds.length}/${totalBadges} earned (${pct}%)</span>
+    <span style="width:80px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:${pct}%;background:var(--gold);border-radius:3px"></span></span>
+  </div>`;
+  html+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(60px,1fr));gap:6px">';
+  earnedIds.forEach(id=>{
+    const b=earned[id];
+    html+=`<div style="text-align:center;padding:6px 4px;background:var(--bg);border-radius:10px;border:1px solid var(--border)" title="${b.title}: ${b.desc||''}">
+      <div style="font-size:20px">${b.icon}</div>
+      <div style="font-size:9px;font-weight:800;margin-top:2px">${b.title}</div>
+    </div>`;
+  });
+  html+='</div>';
+  document.getElementById('rep-badges').innerHTML=html;
+}
+
+/* ---- test builder ---- */
+let currentLessonTestLink='';
+function renderTestBuilder(){
+  const listEl=document.getElementById('test-lesson-list');
+  if(!listEl)return;
+  document.getElementById('lesson-test-link-box').classList.remove('show');
+  C.loadContent(()=>{
+    const packs=C.PACKS();
+    if(!packs.length){listEl.innerHTML='<p class="muted">No lessons loaded.</p>';return}
+    const sorted=[...packs].sort((a,b)=>(a.lessonNum||0)-(b.lessonNum||0));
+    listEl.innerHTML=sorted.map(p=>{
+      const num=p.lessonNum||'?';
+      const label=p.lessonLabel||p.topic||p.module||'Lesson';
+      const level=p.level||'N4';
+      const counts=(p.vocabulary||[]).length+'v '+(p.grammar||[]).length+'g '+(p.kanji||[]).length+'k '+(p.questions||[]).length+'q';
+      return `<label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700" onmouseover="this.style.background='var(--bg)'" onmouseout="this.style.background=''">
+        <input type="checkbox" class="lesson-cb" value="${num}" checked>
+        <span style="min-width:36px;font-weight:900;color:var(--blue)">L${num}</span>
+        <span style="flex:1">${label}</span>
+        <span style="font-size:11px;color:var(--ink3);font-weight:600">${level} · ${counts}</span>
+      </label>`;
+    }).join('');
+  });
+}
+function selectAllLessons(check){
+  document.querySelectorAll('.lesson-cb').forEach(cb=>cb.checked=check);
+}
+function generateLessonTest(){
+  const btn=document.getElementById('gen-lesson-test-btn');
+  btn.disabled=true;btn.textContent='Generating…';
+  try{
+    const selectedNums=[...document.querySelectorAll('.lesson-cb:checked')].map(cb=>parseInt(cb.value)).filter(n=>!isNaN(n));
+    if(!selectedNums.length){toast('Select at least one lesson');btn.disabled=false;btn.textContent='🧪 Generate custom test from selected lessons';return}
+    const useVocab=document.getElementById('ct-vocab').checked;
+    const useGrammar=document.getElementById('ct-grammar').checked;
+    const useKanji=document.getElementById('ct-kanji').checked;
+    const useReading=document.getElementById('ct-reading').checked;
+    const useListening=document.getElementById('ct-listening').checked;
+    const useQuestions=document.getElementById('ct-questions').checked;
+    if(!useVocab&&!useGrammar&&!useKanji&&!useReading&&!useListening&&!useQuestions){toast('Select at least one content type');btn.disabled=false;btn.textContent='🧪 Generate custom test from selected lessons';return}
+    const maxQ=parseInt(document.getElementById('test-q-count').value);
+    const packs=C.PACKS();
+    const selectedPacks=packs.filter(p=>selectedNums.includes(p.lessonNum));
+    const allItems=[...C.ITEMS.vocab,...C.ITEMS.grammar,...C.ITEMS.kanji];
+    const questions=[];
+
+    // Helper: build a multiple-choice question from an item
+    function buildMCQ(jp,en,dim,id){
+      if(!jp||!en)return null;
+      const distractors=allItems
+        .filter(x=>!id || x.id!==id)
+        .map(x=>x.meaning||x.pointEn||x.exampleWord||x.reading||'')
+        .filter(v=>v&&v!==en);
+      const unique=[...new Set(distractors)];
+      const wrong=C.shuffle(unique).slice(0,3);
+      if(wrong.length<3)return null;
+      const opts=C.shuffle([en,...wrong]);
+      const ci=opts.indexOf(en);
+      if(ci<0)return null;
+      return {q:`Which meaning matches「${jp}」?`,o:opts,c:ci,d:dim,id:id||''};
+    }
+
+    // Vocab questions
+    if(useVocab){
+      selectedPacks.forEach(p=>{
+        (p.vocabulary||[]).forEach(v=>{
+          const q=buildMCQ(v.word,v.meaning,'vocab',v.id);
+          if(q)questions.push(q);
+        });
+      });
+    }
+
+    // Grammar questions
+    if(useGrammar){
+      selectedPacks.forEach(p=>{
+        (p.grammar||[]).forEach(g=>{
+          const q=buildMCQ(g.point,g.pointEn||g.explanation||'','grammar',g.id);
+          if(q)questions.push(q);
+        });
+      });
+    }
+
+    // Kanji questions
+    if(useKanji){
+      selectedPacks.forEach(p=>{
+        (p.kanji||[]).forEach(k=>{
+          const q=buildMCQ(k.char,k.meaning,'kanji',k.id);
+          if(q)questions.push(q);
+        });
+      });
+    }
+
+    // Reading comprehension questions
+    if(useReading){
+      selectedPacks.forEach(p=>{
+        if(p.reading&&(p.reading.questions||[]).length){
+          (p.reading.questions||[]).forEach(rq=>{
+            if(rq.o&&rq.o.length>=2&&typeof rq.c==='number'){
+              questions.push({q:rq.q||rq.s||'Reading question',o:rq.o,c:rq.c,d:'reading',id:rq.id||''});
+            }
+          });
+        }
+      });
+    }
+
+    // Listening questions
+    if(useListening){
+      selectedPacks.forEach(p=>{
+        (p.listening||[]).forEach(l=>{
+          if(l.o&&l.o.length>=2&&typeof l.c==='number'){
+            const prompt=l.a||'Listen and answer';
+            questions.push({q:'🎧 '+(l.audioText||prompt),o:l.o,c:l.c,d:'listening',id:l.id||''});
+          }
+        });
+      });
+    }
+
+    // Pre-built quiz questions
+    if(useQuestions){
+      selectedPacks.forEach(p=>{
+        (p.questions||[]).forEach(q=>{
+          if(q.o&&q.o.length>=2&&typeof q.c==='number'){
+            questions.push({q:q.s||q.q||'Question',o:q.o,c:q.c,d:q.dim||'vocab',id:q.id||'',exp:q.exp||''});
+          }
+        });
+      });
+    }
+
+    if(!questions.length){
+      btn.disabled=false;btn.textContent='🧪 Generate custom test from selected lessons';
+      toast('No questions could be generated from the selection');
+      return;
+    }
+
+    // Shuffle and trim to requested count
+    const shuffled=C.shuffle(questions);
+    const finalQs=maxQ>0?shuffled.slice(0,maxQ):shuffled;
+
+    // Store in localStorage with a short key, use short ID in URL
+    const testId=Math.random().toString(36).slice(2,8);
+    const testData={q:finalQs,t:Date.now(),w:0,label:'Custom Test',s:'begench1994garahan'};
+    try{localStorage.setItem('mnn_test_'+testId,JSON.stringify(testData));}catch(e){}
+    currentLessonTestLink=location.origin+'/test.html#'+testId;
+
+    document.getElementById('lesson-test-link-url').textContent=currentLessonTestLink;
+    document.getElementById('lesson-test-link-box').classList.add('show');
+    btn.disabled=false;btn.textContent='🧪 Generate custom test from selected lessons';
+    toast('Test generated with '+finalQs.length+' questions!');
+  }catch(e){
+    btn.disabled=false;btn.textContent='🧪 Generate custom test from selected lessons';
+    toast('Error: '+e.message);
+  }
+}
+function copyLessonTestLink(){
+  if(!currentLessonTestLink)return;
+  navigator.clipboard.writeText(currentLessonTestLink).then(()=>toast('Link copied!')).catch(()=>toast('Copy failed — select and copy manually'));
+}
+
+/* ---- generate weakness test ---- */
+let currentTestLink='';
+function generateWeaknessTest(){
+  const btn=document.getElementById('gen-test-btn');
+  btn.disabled=true; btn.textContent='Generating…';
+  try{
+    const weak=C.getWeakItems(30);
+    const allItems=[...C.ITEMS.vocab,...C.ITEMS.grammar,...C.ITEMS.kanji];
+    const questions=[];
+
+    function buildQuestion(it,dim){
+      if(!it)return null;
+      const jp=it.word||it.reading||it.point||it.char||'';
+      const en=it.meaning||it.pointEn||it.exampleWord||it.reading||'';
+      if(!jp||!en)return null;
+      // Build distractors from English meanings of other items
+      const distractors=allItems
+        .filter(x=>x.id!==it.id)
+        .map(x=>x.meaning||x.pointEn||x.exampleWord||x.reading||'')
+        .filter(v=>v && v!==en);
+      // Deduplicate and shuffle distractors
+      const uniqueDistractors=[...new Set(distractors)];
+      const wrongOpts=C.shuffle(uniqueDistractors).slice(0,3);
+      if(wrongOpts.length<3)return null;
+      const opts=C.shuffle([en,...wrongOpts]);
+      const correctIdx=opts.indexOf(en);
+      if(correctIdx<0)return null;
+      return {
+        q:dim==='kanji'?`Which meaning matches ${jp}?`:
+           dim==='grammar'?`Which grammar point means "${en}"?`:
+           `Which meaning matches "${jp}"?`,
+        o:opts, c:correctIdx,
+        d:dim
+      };
+    }
+
+    // Build questions from weak items first
+    weak.forEach(w=>{
+      const q=buildQuestion(w.item,w.dim||'vocab');
+      if(q){q.id=w.id;questions.push(q)}
+    });
+
+    // Fill with random items if not enough weak ones
+    const usedIds=new Set(questions.map(q=>q.id));
+    let attempts=0;
+    while(questions.length<30 && attempts<100){
+      attempts++;
+      const pool=allItems.filter(it=>!usedIds.has(it.id));
+      if(!pool.length)break;
+      const it=pool[Math.floor(Math.random()*pool.length)];
+      const q=buildQuestion(it,it.dim||'vocab');
+      if(q){q.id=it.id;usedIds.add(it.id);questions.push(q)}
+    }
+
+    if(!questions.length){
+      btn.disabled=false; btn.textContent='🧪 Generate 30-question test targeting weak points';
+      toast('No items available to generate a test');
+      return;
+    }
+
+    // Store in localStorage with short ID
+    const testId=Math.random().toString(36).slice(2,8);
+    const testData={q:questions.slice(0,30),t:Date.now(),w:C.weakCount(),s:'begench1994garahan'};
+    try{localStorage.setItem('mnn_test_'+testId,JSON.stringify(testData));}catch(e){}
+    currentTestLink=location.origin+'/test.html#'+testId;
+
+    document.getElementById('test-link-url').textContent=currentTestLink;
+    document.getElementById('test-link-box').classList.add('show');
+    btn.disabled=false; btn.textContent='🧪 Generate 30-question test targeting weak points';
+    toast('Test generated with '+questions.length+' questions!');
+  }catch(e){
+    btn.disabled=false; btn.textContent='🧪 Generate 30-question test targeting weak points';
+    toast('Error: '+e.message);
+  }
+}
+function copyTestLink(){
+  if(!currentTestLink)return;
+  navigator.clipboard.writeText(currentTestLink).then(()=>toast('Link copied!')).catch(()=>toast('Copy failed — select and copy manually'));
+}
+
+function exportCSV(){
+  const log=C.activityLog();
+  const snaps=C.snapshots();
+  const weak=C.getWeakItems(50);
+  const rows=[['Date','Items','Minutes','Mastery']];
+  Object.keys(log).sort().forEach(k=>{const e=log[k];rows.push([k,e.items||0,e.minutes||0,snaps[k]!=null?snaps[k]:''])});
+  rows.push([]);
+  rows.push(['Weak Item ID','Dimension','Wrong Count','Mastery %']);
+  weak.forEach(w=>{rows.push([w.id,w.dim,w.consecutive||w.count||0,Math.round(w.mastery||0)])});
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='mahym-progress-'+C.dateKey()+'.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('CSV exported!');
+}
+
+/* ---- system ---- */
+async function checkDebug(){document.getElementById('debug-out').textContent='Checking…';try{const r=await fetch('/api/debug');const j=await r.json();document.getElementById('debug-out').textContent=JSON.stringify(j,null,2)}catch(e){document.getElementById('debug-out').textContent='Error: '+e.message}}
+function resetLocal(){if(!confirm("Erase this device's learning progress? (Content is not affected.)"))return;['srs','mastery_snaps','activity_log','momentum','mission_done','cache_packs','xp','streak_v2','weak_log','daily_goal','consecutive_correct','badges','settings','drill_srs','jlpt_best_N5','jlpt_best_N4','jlpt_best_N3','jlpt_best_N2','jlpt_best_N1','jlpt_pass_N5','jlpt_pass_N4','jlpt_pass_N3','jlpt_pass_N2','jlpt_pass_N1','jlpt_attempts_N5','jlpt_attempts_N4','jlpt_attempts_N3','jlpt_attempts_N2','jlpt_attempts_N1','jlpt_placement'].forEach(k=>localStorage.removeItem('mnn_'+k));toast('Local progress reset')}
+async function clearLogs(){if(!confirm('Delete ALL activity logs from the server? This cannot be undone.'))return;try{const r=await fetch('/api/logs',{method:'DELETE',headers:{'x-admin-password':PASSWORD}});const j=await r.json();if(j.ok){toast('Logs cleared')}else{toast(j.error||'Failed')}}catch(e){toast('Network error')}}
+
+/* ---- backup & restore ---- */
+function exportProgress(){
+  const data=C.exportData();
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download=`mahym-backup-${data.exportedAt}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  URL.revokeObjectURL(url);
+  document.getElementById('backup-msg').innerHTML=`<span style="color:var(--green);font-weight:700">✅ Exported ${Object.keys(data.data).length} keys</span>`;
+}
+function importProgress(ev){
+  const file=ev.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const count=C.importData(reader.result);
+      document.getElementById('backup-msg').innerHTML=`<span style="color:var(--green);font-weight:700">✅ Imported ${count} keys. Reload to see updated progress.</span>`;
+      setTimeout(()=>location.reload(),1500);
+    }catch(e){
+      document.getElementById('backup-msg').innerHTML=`<span style="color:var(--accent);font-weight:700">❌ ${e.message}</span>`;
+    }
+  };
+  reader.readAsText(file);
+}
+// Apply dark mode
+if(C.getSettings().darkMode) document.body.classList.add('dark');
+// Register service worker
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+</script>
+</body>
+</html>
