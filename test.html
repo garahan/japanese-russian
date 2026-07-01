@@ -119,7 +119,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
 <div class="container" id="app" role="main">
   <div class="test-header">
     <h1 id="test-title">💪 Проверка знаний</h1>
-    <p id="test-subtitle">Преврати свои слабые места в сильные!</p>
+    <p id="test-subtitle">Преврати слабые места в сильные!</p>
   </div>
   <div id="content" aria-live="polite"></div>
 </div>
@@ -141,7 +141,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
   function loadTest(){
     const hash=location.hash.slice(1);
     if(!hash){
-      app.innerHTML='<div class="empty-state"><div class="es-icon">🔗</div><h2>Тест не найден</h2><p>Попросите преподавателя создать ссылку на тест из админ-панели.</p></div>';
+      app.innerHTML='<div class="empty-state"><div class="es-icon">🔗</div><h2>Тест не найден</h2><p>Попроси преподавателя создать ссылку на тест из админ-панели.</p></div>';
       return false;
     }
     try{
@@ -164,7 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       applyCustomTitle();
       return true;
     }catch(e){
-      app.innerHTML='<div class="empty-state"><div class="es-icon">⚠️</div><h2>Тест не найден</h2><p>Ссылка на тест могла истечь или была создана на другом устройстве. Попросите преподавателя новую ссылку.</p></div>';
+      app.innerHTML='<div class="empty-state"><div class="es-icon">⚠️</div><h2>Тест не найден</h2><p>Ссылка на тест могла истечь или была создана на другом устройстве. Попроси преподавателя новую ссылку.</p></div>';
       return false;
     }
   }
@@ -182,7 +182,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
       const titleEl=document.getElementById('test-title');
       const subEl=document.getElementById('test-subtitle');
       if(titleEl) titleEl.textContent='💪 Проверка знаний';
-      if(subEl) subEl.textContent='Преврати свои слабые места в сильные!';
+      if(subEl) subEl.textContent='Преврати слабые места в сильные!';
     }
   }
 
@@ -194,7 +194,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     const title=isCustom?'🎯 Японский челлендж':'💪 Проверка знаний';
     const subtitle=isCustom
       ?'Ты усердно занималась — теперь покажи, что знаешь! Каждый вопрос — шанс доказать свой прогресс. 頑張って！'
-      :'Преврати свои слабые места в сильные! Каждая ошибка здесь делает тебя сильнее. できる！';
+      :'Преврати слабые места в сильные! Каждая ошибка здесь делает тебя сильнее. できる！';
     app.innerHTML=`
       <div class="start-screen">
         <div class="start-card">
@@ -342,10 +342,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;b
     if(pct>=80){icon='🎉';title='Великолепно!'}
     else if(pct>=60){icon='👍';title='Хорошая работа!'}
     else if(pct>=40){icon='💪';title='Продолжай практиковаться!'}
-    else{icon='📚';title='Нужно больше занятий'}
+    else{icon='📚';title='Нужно больше практики'}
 
     const reviewHTML=review.length?`<div class="rc-review">
-      <h3>Повторение (${review.length} к изучению)</h3>
+      <h3>Разбор ошибок (${review.length} вопросов)</h3>
       ${review.map(r=>`<div class="review-item">
         <div class="ri-q">${r.dim?`<span class="q-dim-tag ${r.dim}" style="font-size:9px;padding:2px 6px">${r.dim}</span> `:''}${r.q}</div>
         ${r.wrong?`<div class="ri-w">Твой ответ: ${r.wrong}</div>`:'<div class="ri-w" style="text-decoration:none;color:var(--ink3)">Нет ответа</div>'}

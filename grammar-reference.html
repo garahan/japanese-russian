@@ -140,7 +140,7 @@ function renderGrammar(items){
   const countEl=document.getElementById('gr-count');
   countEl.textContent=items.length+' грамматическ'+(items.length===1?'ая конструкция':(items.length>=2&&items.length<=4?'ие конструкции':'их конструкций'));
   if(!items.length){
-    body.innerHTML=`<div class="gr-empty"><div class="es-icon">📚</div><div class="es-title">Грамматика не найдена</div><div style="font-size:14px;margin-top:4px">Попробуйте другой поиск или фильтр уроков</div></div>`;
+    body.innerHTML=`<div class="gr-empty"><div class="es-icon">📚</div><div class="es-title">Ничего не найдено</div><div style="font-size:14px;margin-top:4px">Попробуй другой поиск или фильтр уроков</div></div>`;
     return;
   }
   // Group by lesson

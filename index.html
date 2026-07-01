@@ -999,7 +999,7 @@ body.dark .feed-timer{background:linear-gradient(135deg,rgba(67,97,238,.1),rgba(
         <div id="notif-permit-area"></div>
         <div id="notif-controls" style="display:none">
           <div class="notif-toggle">
-            <span>🔥 Напоминание о стрике</span>
+            <span>🔥 Напоминание о серии дней</span>
             <div class="notif-switch" id="notif-streak" onclick="App.toggleNotif('streak')"><div class="ns-knob"></div></div>
           </div>
           <div class="notif-toggle">
@@ -1007,7 +1007,7 @@ body.dark .feed-timer{background:linear-gradient(135deg,rgba(67,97,238,.1),rgba(
             <div class="notif-switch" id="notif-review" onclick="App.toggleNotif('review')"><div class="ns-knob"></div></div>
           </div>
           <div class="notif-toggle">
-            <span>🎯 Напоминание о цели дня</span>
+            <span>🎯 Напоминание о дневной цели</span>
             <div class="notif-switch" id="notif-goal" onclick="App.toggleNotif('goal')"><div class="ns-knob"></div></div>
           </div>
           <div class="notif-time">
@@ -1207,7 +1207,7 @@ function requestNotifPermission(){
     updateNotifUI();
     if(result==='granted'){
       // Send a welcome notification
-      try{ new Notification('🌸 日本語 — 道', {body:'Уведомления включены! Будем напоминать держать стрик.', icon:'/icon-192.png'}); }catch(e){}
+      try{ new Notification('🌸 日本語 — 道', {body:'Уведомления включены! Будем напоминать не прерывать серию.', icon:'/icon-192.png'}); }catch(e){}
       startNotifScheduler();
     }
   });
@@ -1295,13 +1295,13 @@ function checkAndFireNotifications(){
   if(n.streak && n.lastStreak!==today){
     const streak=C.getStreakData();
     const msg=streak.count===0
-      ? 'Начни новый стрик сегодня — всего 5 минут!'
+      ? 'Начни новую серию сегодня — всего 5 минут!'
       : streak.count<7
-        ? `Не прерывай стрик из ${streak.count} дней! Заходи заниматься.`
+        ? `Не прерывай серию из ${streak.count} дней! Заходи заниматься.`
         : streak.count<30
           ? `🔥 ${streak.count} дней подряд! Поддержи огонь сегодня.`
           : `🏆 ${streak.count} дней! Ты неудержима — не останавливайся.`;
-    fireNotification('🔥 Напоминание о стрике', msg);
+    fireNotification('🔥 Серия дней', msg);
     n.lastStreak=today; saveNotifSettings(n);
   }
 
@@ -1310,7 +1310,7 @@ function checkAndFireNotifications(){
     const pool=[...C.ITEMS.vocab,...C.ITEMS.grammar,...C.ITEMS.kanji];
     const dueN=pool.filter(it=>C.itemState(it.id).attempts>0 && C.isDue(it.id)).length;
     if(dueN>0){
-      fireNotification('🔁 Повторение', `${dueN} карточк${dueN>1?'ек':'ка'} ждёт повторения. Поддержи память!`);
+      fireNotification('🔁 Повторение', `${dueN} карточк${dueN>1?'ек':'ка'} ждут повторения. Поддержи память!`);
       n.lastReview=today; saveNotifSettings(n);
     }
   }
@@ -1320,7 +1320,7 @@ function checkAndFireNotifications(){
     const goal=C.getDailyGoal();
     if(!C.isDailyGoalDone() && goal.target-goal.current>0){
       const remaining=goal.target-goal.current;
-      fireNotification('🎯 Цель дня', `Осталось всего ${remaining} элемент${remaining>1?'ов':'а'} до цели дня!`);
+      fireNotification('🎯 Дневная цель', `Осталось всего ${remaining} элемент${remaining>1?'ов':'а'} до дневной цели!`);
       n.lastGoal=today; saveNotifSettings(n);
     }
   }
@@ -1390,7 +1390,7 @@ function checkStreakBurst(streakCount){
     const fire=document.getElementById('streak-fire');
     if(fire){ fire.classList.add('burst'); setTimeout(()=>fire.classList.remove('burst'),1000); }
     const labels={7:'Воин недели!',14:'2 недели!',30:'Мастер месяца!',60:'2 месяца!',100:'Сто дней!'};
-    showAchievement('🔥',labels[streakCount]||streakCount+' дней!',`Ты на стрике из ${streakCount} дней. Не останавливайся!`,4000);
+    showAchievement('🔥',labels[streakCount]||streakCount+' дней!',`Серия из ${streakCount} дней. Не останавливайся!`,4000);
     confetti();
   }
 }
@@ -1433,26 +1433,26 @@ const App = (function(){
   /* ---------- HOME (lesson curriculum) ---------- */
   function diffBadge(d){ const lab={easy:'Легко',medium:'Средне',hard:'Сложно'}[d]||'Средне'; return `<span class="diff-badge diff-${d||'medium'}"><span class="diff-dot"></span>${lab}</span>`; }
   function lessonProgressPct(n){ const steps=C.LESSON_STEPS,p=C.getLessonProgress(n); return Math.round((p.steps.filter(s=>steps.includes(s)).length/steps.length)*100); }
-  function lessonStepLabel(n){ const done=C.getLessonProgress(n).steps.length,total=C.LESSON_STEPS.length; return done===0?'Начни с изучения':done>=total?'Завершено ✓':`${done}/${total} шагов готово`; }
+  function lessonStepLabel(n){ const done=C.getLessonProgress(n).steps.length,total=C.LESSON_STEPS.length; return done===0?'Начни с изучения':done>=total?'Завершено ✓':`${done}/${total} шага пройдено`; }
   function lTitle(p,n){ return (p&&(p.topic||p.lessonLabel||p.moduleLabel))||('Урок '+n); }
   function lSub(p){ if(!p)return ''; return p.topicEn||(p.lessonLabel&&p.lessonLabel!==lTitle(p)?p.lessonLabel:'')||p.level||''; }
 
   function getCoachWhisper(streak,done,total,goalDone,mv){
     const msgs=[];
     // Streak-based
-    if(streak.count===0) msgs.push({e:'🌱',t:'С возвращением! Один урок сегодня начнёт новый стрик.'});
-    else if(streak.count===1) msgs.push({e:'🔥',t:'День 1! Вернись завтра, чтобы растить стрик.'});
-    else if(streak.count<7) msgs.push({e:'🔥',t:`<strong>${streak.count} дней подряд!</strong> Поддержи огонь.`});
+    if(streak.count===0) msgs.push({e:'🌱',t:'С возвращением! Один урок сегодня — и начнётся новая серия.'});
+    else if(streak.count===1) msgs.push({e:'🔥',t:'День 1! Вернись завтра, чтобы продолжить серию.'});
+    else if(streak.count<7) msgs.push({e:'🔥',t:`<strong>${streak.count} дней подряд!</strong> Не дай огоньку погаснуть.`});
     else if(streak.count<30) msgs.push({e:'🔥',t:`<strong>${streak.count} дней!</strong> Набираешь реальный импульс.`});
     else msgs.push({e:'🏆',t:`<strong>${streak.count} дней!</strong> Ты неудержима.`});
     // Goal-based
-    if(goalDone) msgs.push({e:'✅',t:'Цель дня готова! Всё сверх — бонусный XP.'});
+    if(goalDone) msgs.push({e:'✅',t:'Цель на день достигнута! Всё сверх — бонусный XP.'});
     // Progress-based
     if(done===0 && total>0) msgs.push({e:'📖',t:'Начни с первого урока — всего 5 минут.'});
-    else if(done>0 && done<total) msgs.push({e:'📈',t:`<strong>${done}/${total}</strong> уроков готово. Ты на ${Math.round(done/total*100)}%!`});
+    else if(done>0 && done<total) msgs.push({e:'📈',t:`<strong>${done}/${total}</strong> уроков пройдено. Ты на ${Math.round(done/total*100)}%!`});
     else if(done===total && total>0) msgs.push({e:'🎓',t:'Все уроки завершены! Повторение держит память острой.'});
     // Momentum
-    if(mv>=30) msgs.push({e:'⚡',t:'Импульс <strong>на огне</strong> — держи волну!'});
+    if(mv>=30) msgs.push({e:'⚡',t:'Импульс <strong>на максимуме</strong> — держи волну!'});
     // Pick 1-2 messages, rotate by day so it feels fresh
     const daySeed=new Date().getDate();
     const pick1=msgs[daySeed%msgs.length];
@@ -1524,7 +1524,7 @@ const App = (function(){
     document.getElementById('goal-ring-fg').style.strokeDashoffset=circumference-(circumference*goalPct/100);
     document.getElementById('goal-check').innerHTML=goalDone?'✅':'';
     const goalEl=document.getElementById('goal-detail');
-    goalEl.textContent=goalDone?'Цель готова! 🎉':`${goal.current} / ${goal.target} элементов`;
+    goalEl.textContent=goalDone?'Цель достигнута! 🎉':`${goal.current} / ${goal.target} элементов`;
     goalEl.classList.toggle('done',goalDone);
 
     // Momentum
@@ -1572,10 +1572,10 @@ const App = (function(){
     document.getElementById('weak-slot').innerHTML = weakN>0 ? `
       <div class="sect" style="margin-top:1.1rem">弱点 — Слабые места</div>
       <div class="weak-dashboard">
-        <div class="weak-head"><span class="weak-title">Элементы для укрепления</span><span class="weak-count">${weakN} слабых</span></div>
-        ${weak.map(w=>{const it=w.item;const jp=it.word||it.point||it.char||it.id;const dim=w.dim||it.dim||'vocab';const barColor=w.mastery<30?'var(--red)':w.mastery<60?'var(--gold)':'var(--green)';return `<div class="weak-item"><span class="weak-jp">${jp}</span><span class="weak-dim-tag ${dim}">${dim}</span><span class="weak-meta">${w.consecutive}× неправ.</span><div class="weak-bar"><div class="f" style="width:${100-w.mastery}%;background:${barColor}"></div></div></div>`}).join('')}
+        <div class="weak-head"><span class="weak-title">Что нужно закрепить</span><span class="weak-count">${weakN} отстающих</span></div>
+        ${weak.map(w=>{const it=w.item;const jp=it.word||it.point||it.char||it.id;const dim=w.dim||it.dim||'vocab';const barColor=w.mastery<30?'var(--red)':w.mastery<60?'var(--gold)':'var(--green)';return `<div class="weak-item"><span class="weak-jp">${jp}</span><span class="weak-dim-tag ${dim}">${dim}</span><span class="weak-meta">${w.consecutive}× ошибок</span><div class="weak-bar"><div class="f" style="width:${100-w.mastery}%;background:${barColor}"></div></div></div>`}).join('')}
         <button class="strengthen-tile" style="margin-top:10px;width:100%" onclick="C.haptic('heavy');App.startStrengthen()">
-          <span class="st-icon">💪</span><div><div class="st-name">Укрепить слабые элементы</div><div class="st-sub">Проработай ${weakN} слабейших до восстановления</div></div>
+          <span class="st-icon">💪</span><div><div class="st-name">Закрепить слабые места</div><div class="st-sub">Проработай ${weakN} трудных мест и закрепи их</div></div>
         </button>
       </div>` : '';
 
@@ -1601,7 +1601,7 @@ const App = (function(){
         <div class="t-icon">📖</div><div><div class="t-name">文法 — Справочник по грамматике</div><div class="t-sub">Все грамматические конструкции · поиск</div></div>
       </div>
       <div class="tile wide stagger stagger-8" style="margin-top:.6rem;background:linear-gradient(135deg,#fce4ec,#f3e5f5);border-color:#e1bee7;--shine-delay:5s" onclick="C.haptic('light');App.openMangaHub()">
-        <div class="t-icon">📚</div><div><div class="t-name" style="color:#8e24aa">マンガで読む — Чтение манги</div><div class="t-sub">Градуированные истории · N5-N3 · фуригана + аудио</div></div>
+        <div class="t-icon">📚</div><div><div class="t-name" style="color:#8e24aa">マンガで読む — Чтение манги</div><div class="t-sub">Адаптированные истории · N5-N3 · фуригана + аудио</div></div>
       </div>` : '';
 
     // Badges grid + Growth Tree
@@ -1616,12 +1616,12 @@ const App = (function(){
     // Growth tree state based on retention + momentum
     const retV = ret != null ? ret : 0;
     let treeEmoji, treeStatus, treeColor;
-    if (retV >= 85 && mom >= 20) { treeEmoji='🌳'; treeStatus='Цветёт — твоя память глубокая и сильная'; treeColor='var(--green)'; }
-    else if (retV >= 70) { treeEmoji='🌲'; treeStatus='Здоровое — поливай ежедневным повторением'; treeColor='var(--green)'; }
+    if (retV >= 85 && mom >= 20) { treeEmoji='🌳'; treeStatus='Цветёт — память крепкая и глубокая'; treeColor='var(--green)'; }
+    else if (retV >= 70) { treeEmoji='🌲'; treeStatus='Крепкое — поливай ежедневным повторением'; treeColor='var(--green)'; }
     else if (retV >= 50) { treeEmoji='🌿'; treeStatus='Растёт — повторения укрепляют корни'; treeColor='#8bc34a'; }
     else if (retV >= 30) { treeEmoji='🌱'; treeStatus='Прорастает — каждое повторение помогает расти'; treeColor='#c0ca33'; }
     else if (learnedCount === 0) { treeEmoji='🌰'; treeStatus='Семечко — готово к посадке. Начни первый урок!'; treeColor='var(--ink3)'; }
-    else { treeEmoji='🥀'; treeStatus='Вянет — памяти нужна вода. Повтори сейчас!'; treeColor='var(--red)'; }
+    else { treeEmoji='🥀'; treeStatus='Вянет — срочно полей повторением!'; treeColor='var(--red)'; }
 
     // Tree upgrade detection
     const prevTree = C.DB.get('gt_stage') || '';
@@ -1861,10 +1861,10 @@ const App = (function(){
   function getMemStage(state){
     if(!state||!state.attempts) return {stage:'new',label:'Новое',pct:5,color:'var(--blue)'};
     const mastery=C.itemMastery(state._id||'');
-    if(state.reps<=1) return {stage:'learning',label:'Изучение',pct:25,color:'var(--gold)'};
-    if(state.reps<=3) return {stage:'young',label:'Молодое',pct:50,color:'#2e7d32'};
+    if(state.reps<=1) return {stage:'learning',label:'В работе',pct:25,color:'var(--gold)'};
+    if(state.reps<=3) return {stage:'young',label:'Закрепляется',pct:50,color:'#2e7d32'};
     if(mastery<80) return {stage:'young',label:'Растёт',pct:70,color:'#2e7d32'};
-    return {stage:'mature',label:'Зрелое',pct:90,color:'var(--green)'};
+    return {stage:'mature',label:'Освоено',pct:90,color:'var(--green)'};
   }
 
   /* ---------- generic quiz runner (mission recall, practice, reading Qs, listening) ---------- */
@@ -2116,7 +2116,7 @@ const App = (function(){
 
   function renderLearn(){
     const n=curLesson, p=C.getLessonByNum(n), g=(p.grammar||[]);
-    const about = g.length ? `<div class="lesson-about"><h4>Что изучает этот урок</h4>${g.map(x=>`<div style="margin-bottom:8px"><strong>${x.point}</strong><br>${x.explanation||''}</div>`).join('')}</div>` : '';
+    const about = g.length ? `<div class="lesson-about"><h4>Чему посвящён этот урок</h4>${g.map(x=>`<div style="margin-bottom:8px"><strong>${x.point}</strong><br>${x.explanation||''}</div>`).join('')}</div>` : '';
     const vocabBlock = (p.vocabulary&&p.vocabulary.length) ? `
       <div class="learn-block">
         <div class="lb-h"><span>🧠 Словарь · ${p.vocabulary.length}</span>${diffBadge(p.difficulty)}</div>
@@ -2146,12 +2146,12 @@ const App = (function(){
         <div class="lb-h"><span>📖 Чтение</span></div>
         <div style="font-family:'Noto Sans JP';font-weight:800;margin-bottom:8px">${p.reading.title||''}</div>
         <div class="passage" style="margin:0 0 12px;box-shadow:none">${p.reading.passage||''}</div>
-        <button class="listen-btn" onclick="sayNow('${sayRef(p.reading.passage||'')}')">🎧 Читать с аудированием</button>
+        <button class="listen-btn" onclick="sayNow('${sayRef(p.reading.passage||'')}')">🎧 Слушать и читать</button>
       </div>` : '';
     document.getElementById('lesson-content').innerHTML=`
       <div class="lookup-hint">💡 Долгое нажатие на японский текст ниже — выбери его, затем нажми <strong>Поиск</strong> для чтения и значения. Нажми ▶ чтобы услышать.</div>
       ${about}${vocabBlock}${gramBlock}${kanjiBlock}${readingBlock}
-      <button class="lcta" onclick="App.markLearned(${n})">Я изучила это — начать практику →</button>`;
+      <button class="lcta" onclick="App.markLearned(${n})">Я разобрала теорию — к практике →</button>`;
   }
   function markLearned(n){
     C.haptic('success');
@@ -2170,7 +2170,7 @@ const App = (function(){
     if(lessonListening(n).length) cats.push({icon:'🎧',name:'Аудирование',sub:`${lessonListening(n).length} вопрос${lessonListening(n).length>1?'ов':'а'}`,fn:`App.practiceListening(${n})`,diff:'medium'});
     if(p.reading)         cats.push({icon:'📖',name:'Чтение и понимание',sub:`${prog.steps.includes('reading')?'✓ готово · ':''}Текст + вопросы`,fn:`App.practiceReading(${n})`,diff:p.difficulty});
 
-    let html=`<div style="font-size:13px;color:var(--ink3);font-weight:700;margin-bottom:10px">Разминка любым упражнением — у каждого указана сложность. Затем заверши двумя проверками ниже.</div>`;
+    let html=`<div style="font-size:13px;color:var(--ink3);font-weight:700;margin-bottom:10px">Разминка — выбери любое упражнение, у каждого указана сложность. Затем заверши двумя проверками ниже.</div>`;
     html+=cats.map(c=>`<div class="prac-card" onclick="C.haptic('light');${c.fn}">
         <div class="prac-icon">${c.icon}</div>
         <div class="prac-body"><div class="prac-name">${c.name}</div><div class="prac-sub">${c.sub}</div></div>
@@ -2178,7 +2178,7 @@ const App = (function(){
     html+=`<div class="sect" style="margin-top:1.4rem">仕上げ — Заверши урок</div>`;
     html+=`<button class="lcta${prog.steps.includes('quiz')?' ghost':''}" onclick="C.haptic('heavy');App.practiceMixed(${n})">${prog.steps.includes('quiz')?'✓ ':''}Смешанный тест — проверка узнавания</button>`;
     html+=`<button class="lcta${prog.steps.includes('write')?' ghost':''}" onclick="C.haptic('heavy');App.practiceWrite(${n})">${prog.steps.includes('write')?'✓ ':''}Проверка воспроизведения — вспомни всё</button>`;
-    if(C.isLessonComplete(n)) html+=`<div class="lesson-about" style="background:var(--green-soft);border-color:#b9f0cf;text-align:center"><strong>🎉 Урок ${n} завершён.</strong><br>Карточки теперь в ежедневном повторении, распределены по силе памяти.</div>`;
+    if(C.isLessonComplete(n)) html+=`<div class="lesson-about" style="background:var(--green-soft);border-color:#b9f0cf;text-align:center"><strong>🎉 Урок ${n} завершён.</strong><br>Карточки теперь в ежедневном повторении, отсортированы по прочности запоминания.</div>`;
     document.getElementById('lesson-content').innerHTML=html;
   }
 
@@ -2504,13 +2504,13 @@ const App = (function(){
     // Tomorrow teaser + curiosity gap
     const teaser=C.curiosityTeaser();
     const inv=C.totalInvestment();
-    html+=`<div class="reward-tomorrow">📅 Завтра: ${dueTomorrow} повторений ждёт</div>`;
+    html+=`<div class="reward-tomorrow">📅 Завтра: ${dueTomorrow} повторений ждут</div>`;
     // Curiosity gap — creates an open loop the brain wants to close
     html+=`<div class="reward-teaser">🔮 ${teaser}</div>`;
     // Sunk-cost / investment — makes quitting feel like throwing away progress
     if(inv.totalReviews>0){
       html+=`<div class="reward-investment-card">
-        <div class="ric-title">📊 Твои вложения</div>
+        <div class="ric-title">📊 Твой вклад</div>
         <div class="ric-stats">
           <div class="ric-stat"><div class="ric-v">${inv.totalReviews}</div><div class="ric-l">Повторений</div></div>
           <div class="ric-stat"><div class="ric-v">${C.overallMastery()}%</div><div class="ric-l">Освоение</div></div>
@@ -2599,7 +2599,7 @@ const App = (function(){
       C.logActivity(r.n,Math.max(1,Math.round(r.n/4))); C.snapshotToday(); C.bumpMomentum(8);
       const mom=C.getMomentum().value;
       report('practice',{good:r.good,total:r.n,overall:C.overallMastery(),momentum:mom});
-      showRewardScreen({icon:'💪',title:'Укреплено!',sub:`${r.good}/${r.n} элементов восстановлено`,xp:Math.round(r.good*15),correct:r.good,total:r.n,celebrate:r.good>=Math.ceil(r.n*0.7)});
+      showRewardScreen({icon:'💪',title:'Закреплено!',sub:`${r.good}/${r.n} элементов закреплено`,xp:Math.round(r.good*15),correct:r.good,total:r.n,celebrate:r.good>=Math.ceil(r.n*0.7)});
     });
   }
 
@@ -2684,7 +2684,7 @@ const App = (function(){
       <button class="sback" style="margin-bottom:1rem" onclick="App.home()">← Главная</button>
       <div class="exam-hub-head">
         <div class="exam-hub-title">📝 Пробные тесты</div>
-        <div class="exam-hub-sub">Проверь свои знания в формате экзамена. Начни с <b>A 初級</b>; сдав (≥${PASS_PCT}%), откроешь следующий уровень. Каждый тест с таймером и пятью секциями. Вопросы берутся из твоих уроков по сложности.</div>
+        <div class="exam-hub-sub">Проверь свои знания в формате экзамена. Начни с <b>A 初級</b>; сдав (≥${PASS_PCT}%), откроешь следующий уровень. Каждый тест с таймером и пятью секциями. Вопросы берутся из твоих уроков с учётом сложности.</div>
       </div>
       ${card('A')}${card('B')}${card('C')}`;
     showView('view-exam');
@@ -2846,7 +2846,7 @@ const App = (function(){
     const nextUnlocked = passed && (lvl==='A'||lvl==='B');
     const breakdown=EX.sec.map(s=>`<div class="exam-brow"><span class="bn">Секция ${s.key} · ${s.label}</span><span class="bs">${s.pts}/${s.poss}</span></div>`).join('');
     const wrong=EX.screens.map((s,idx)=>({s,idx})).filter(x=>EX.answers[x.idx]!==x.s.c);
-    const review=wrong.length?`<div class="sect" style="margin-top:1.2rem">Повторение — ${wrong.length} для разбора</div>`+wrong.map(({s,idx})=>`
+    const review=wrong.length?`<div class="sect" style="margin-top:1.2rem">Разбор ошибок — ${wrong.length} вопросов</div>`+wrong.map(({s,idx})=>`
       <div class="exam-review-q"><div style="font-weight:700;margin-bottom:6px">${s.q}</div>
         <div class="erv-bad">Твой ответ: ${EX.answers[idx]==null?'—':s.o[EX.answers[idx]]}</div>
         <div class="erv-good">Правильно: ${s.o[s.c]}</div>
@@ -2922,7 +2922,7 @@ const App = (function(){
     const card=(lvl)=>{
       const L=JLPT_LEVELS[lvl], st=jlptStatus(lvl);
       const meta = st.attempts>0
-        ? `<div class="jlpt-best">${st.best?st.best+'/180':'—'}</div><div class="jlpt-status ${st.passed?'jlpt-pass':''}">${st.passed?'✓ сдан':'лучший · '+st.attempts+'× попыток'}</div>`
+        ? `<div class="jlpt-best">${st.best?st.best+'/180':'—'}</div><div class="jlpt-status ${st.passed?'jlpt-pass':''}">${st.passed?'✓ сдан':'лучший · '+st.attempts+' попыток'}</div>`
         : `<div class="jlpt-status jlpt-lock">ещё не пройден</div>`;
       return `<button class="jlpt-level-card jlpt-${lvl}" onclick="C.haptic('heavy');App.startJlpt('${lvl}')">
         <div class="jlpt-row">
@@ -2953,7 +2953,7 @@ const App = (function(){
       <button class="sback" style="margin-bottom:1rem" onclick="App.home()">← Главная</button>
       <div class="jlpt-hub-head">
         <div class="jlpt-hub-title">🎯 JLPT 実力診断 — Тест уровня</div>
-        <div class="jlpt-hub-sub">Проверь свой реальный уровень JLPT в любое время. Сдавай любой уровень (N5→N1) — тест использует систему оценивания JLPT (180 баллов, 3 секции с порогом по каждой). После завершения увидишь свой предполагаемый уровень, разбивку по секциям и рекомендации для занятий.</div>
+        <div class="jlpt-hub-sub">Проверь свой реальный уровень JLPT в любое время. Сдавай любой уровень (N5→N1) — тест использует систему оценивания JLPT (180 баллов, 3 секции с порогом по каждой). После завершения увидишь свой предполагаемый уровень, разбивку по секциям и рекомендации по занятиям.</div>
       </div>
       ${placementHTML}
       <div class="jlpt-placement-banner">
@@ -3168,9 +3168,9 @@ const App = (function(){
     } else if(!passed){
       if(levelIdx>0){
         recommendLevel=levelOrder[levelIdx-1];
-        recommendDesc=`${level} пока сложноват. Твой реальный уровень — около ${recommendLevel}. Сосредоточься на секциях ниже 19 баллов.`;
+        recommendDesc=`${level} пока трудноват. Твой реальный уровень — около ${recommendLevel}. Сосредоточься на секциях ниже 19 баллов.`;
       } else {
-        recommendDesc=`N5 — отправная точка. Продолжай строить базу словаря и грамматики. Ты дойдёшь!`;
+        recommendDesc=`N5 — отправная точка. Продолжай выстраивать базу словаря и грамматики. Ты дойдёшь!`;
       }
     } else {
       recommendDesc=`Отлично! Ты освоила ${level}. Это высший уровень — поддерживай его регулярным повторением.`;
@@ -3191,7 +3191,7 @@ const App = (function(){
 
     // Wrong answers review
     const wrong=JL.screens.map((s,idx)=>({s,idx})).filter(x=>JL.answers[x.idx]!==x.s.c);
-    const review=wrong.length?`<div class="sect" style="margin-top:1.2rem">Повторение — ${wrong.length} для разбора</div>`+wrong.map(({s,idx})=>`
+    const review=wrong.length?`<div class="sect" style="margin-top:1.2rem">Разбор ошибок — ${wrong.length} вопросов</div>`+wrong.map(({s,idx})=>`
       <div class="exam-review-q"><div style="font-weight:700;margin-bottom:6px">${s.q}</div>
         <div class="erv-bad">Твой ответ: ${JL.answers[idx]==null?'—':s.o[JL.answers[idx]]}</div>
         <div class="erv-good">Правильно: ${s.o[s.c]}</div>
@@ -3230,9 +3230,9 @@ const App = (function(){
         <div style="margin-top:10px;border:1px solid var(--border);border-radius:12px;overflow:hidden">${sectionBreakdown}</div>
       </div>
       <div class="jlpt-recommend">
-        <div class="jr-title">🎯 Рекомендация для занятий</div>
+        <div class="jr-title">🎯 Рекомендации по занятиям</div>
         ${recommendDesc}
-        <div style="margin-top:8px;font-weight:800;color:var(--blue)">Рекомендуемый следующий: ${recommendLevel}</div>
+        <div style="margin-top:8px;font-weight:800;color:var(--blue)">Следующий уровень: ${recommendLevel}</div>
       </div>
       <div style="display:flex;gap:10px;margin:1rem 0">
         <button class="exam-next" style="background:var(--card);color:var(--ink);border:1.5px solid var(--border);margin:0" onclick="App.startJlpt('${level}')">↻ Заново ${level}</button>
@@ -3277,7 +3277,7 @@ const App = (function(){
 
     // Update header subtitle
     if (remaining > 0) {
-      sub.textContent = `Ещё ${remaining} треда · Читайте японский`;
+      sub.textContent = `Осталось ${remaining} треда · Читай японский`;
     } else {
       // Calculate time until midnight
       const now = new Date();
@@ -3359,7 +3359,7 @@ const App = (function(){
     dotsEl.innerHTML = dotsHTML;
 
     if (remaining > 0) {
-      sub.textContent = `Ещё ${remaining} треда · Читайте японский`;
+      sub.textContent = `Осталось ${remaining} треда · Читай японский`;
     } else {
       const now = new Date();
       const tomorrow = new Date(now);
@@ -3429,7 +3429,7 @@ const App = (function(){
       html += `<div class="feed-empty">
         <div class="feed-empty-icon">🌸</div>
         <div class="feed-empty-title">Все треды на сегодня прочитаны!</div>
-        <div class="feed-empty-sub">Вы прочитали все ${FEED_DAILY_LIMIT} треда. Завтра вас ждут новые треды.</div>
+        <div class="feed-empty-sub">Ты прочитала все ${FEED_DAILY_LIMIT} треда. Завтра тебя ждут новые.</div>
         <div class="feed-timer">⏰ ещё ${hours} ч ${mins} мин</div>
       </div>`;
     }
@@ -3504,7 +3504,7 @@ const App = (function(){
       <button class="sback" style="margin-bottom:1rem" onclick="App.home()">← Главная</button>
       <div class="manga-hub-head">
         <div class="manga-hub-title">📚 マンガで読む — Чтение манги</div>
-        <div class="manga-hub-sub">Оригинальные градуированные истории для изучающих японский. Читай по панелям с фуриганой, аудио и словарём. Нажми на панель, чтобы услышать произношение.</div>
+        <div class="manga-hub-sub">Оригинальные адаптированные истории для изучающих японский. Читай по панелям с фуриганой, аудио и словарём. Нажми на панель, чтобы услышать произношение.</div>
       </div>
       ${cards||'<div class="empty-state"><div class="es-icon">📚</div><div class="es-title">Историй пока нет</div><div class="es-sub">Скоро появится новый контент!</div></div>'}`;
     showView('view-manga');
@@ -3530,7 +3530,7 @@ const App = (function(){
     }).join('');
     const lvlClass=s.level.toLowerCase();
     document.getElementById('manga-body').innerHTML=`
-      <button class="sback" style="margin-bottom:1rem" onclick="App.openMangaHub()">← Список манги</button>
+      <button class="sback" style="margin-bottom:1rem" onclick="App.openMangaHub()">← К списку манги</button>
       <div class="manga-story-card" style="cursor:default">
         <div class="manga-sc-head">
           <div class="manga-sc-cover" style="width:72px;height:72px;font-size:48px">${s.cover}</div>

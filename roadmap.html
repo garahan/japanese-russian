@@ -112,7 +112,7 @@ body.dark{--bg:#1a1a2e;--card:#252542;--ink:#e8e8f0;--ink2:#a0a0c0;--ink3:#6e6e9
   <div class="card" id="ladder"></div>
 
   <div class="card">
-    <div class="eyebrow">⏳ В твоём текущем темпе</div>
+    <div class="eyebrow">⏳ При твоём темпе</div>
     <div id="projection"></div>
     <div style="font-size:11px;color:var(--ink3);margin-top:10px;font-weight:600">Прогноз основан на твоём недавнем ежедневном росте. Продолжай заниматься — дата приближается с каждым активным днём.</div>
   </div>
@@ -120,7 +120,7 @@ body.dark{--bg:#1a1a2e;--card:#252542;--ink:#e8e8f0;--ink2:#a0a0c0;--ink3:#6e6e9
   <div class="stats" id="stats"></div>
 
   <div class="card">
-    <div class="ctitle">Активность занятий</div>
+    <div class="ctitle">Активность</div>
     <div class="eyebrow" style="margin:2px 0 12px">Последние 18 недель</div>
     <div class="hm" id="heatmap"></div>
   </div>
@@ -137,7 +137,7 @@ body.dark{--bg:#1a1a2e;--card:#252542;--ink:#e8e8f0;--ink2:#a0a0c0;--ink3:#6e6e9
     <div class="track-legend">
       <span><div class="dot" style="background:var(--blue)"></div>Готово</span>
       <span><div class="dot" style="background:#fff;border:2.5px solid var(--blue);box-sizing:border-box"></div>Текущий</span>
-      <span><div class="dot" style="background:var(--border)"></div>Закрыто</span>
+      <span><div class="dot" style="background:var(--border)"></div>Недоступно</span>
     </div>
   </div>
 
@@ -198,7 +198,7 @@ function render(){
   document.getElementById('ladder').innerHTML=rungs.map(r=>`<div class="rung ${r.state}"><div class="dot">${r.ic}</div><div><div class="name">${r.n}</div><div class="sub">${r.sub}</div></div></div>`).join('');
 
   // projection
-  const targets=[{g:'🌱 Готова к N4 (80%)',t:80},{g:'📗 Готов к N3 (90%)',t:90},{g:'📕 Готов к N2 (95%)',t:95},{g:'👑 Готов к N1 (99%)',t:99}];
+  const targets=[{g:'🌱 Готов к N4 (80%)',t:80},{g:'📗 Готов к N3 (90%)',t:90},{g:'📕 Готов к N2 (95%)',t:95},{g:'👑 Готов к N1 (99%)',t:99}];
   document.getElementById('projection').innerHTML=targets.map(x=>{
     const d=C.daysToReady(x.t);
     const txt=d<=0?'Готов ✓':(d>900?'Продолжай':'~'+d+' дней');
